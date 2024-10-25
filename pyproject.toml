@@ -18,6 +18,8 @@ pint-pandas = "^0.5"
 python-dateutil = "^2.8"
 tables = "^3.9.2"
 omegaconf = "^2.3.0"
+brukeropus = "^1.1.0"
+xarray = "^2024.10.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -27,6 +29,7 @@ pandas-stubs = "^2.2.1.240316"
 pytest-watcher = "^0.4.2"
 git-changelog = "^2.5.2"
 pre-commit = "^3.7.0"
+matplotlib = "^3.9.2"
 
 [build-system]
 requires = ["poetry-core"]
