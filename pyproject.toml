@@ -20,6 +20,7 @@ tables = "^3.9.2"
 omegaconf = "^2.3.0"
 brukeropus = "^1.1.0"
 xarray = "^2024.10.0"
+pint-xarray = "^0.4"
 
 
 [tool.poetry.group.dev.dependencies]
