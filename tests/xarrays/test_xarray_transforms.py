@@ -2,13 +2,12 @@ from pathlib import Path
 
 import numpy as np
 import pint
-import xarray as xr
 import pint_xarray
+import xarray as xr
 
-from rdmlibpy.xarrays import (
-    XArrayAttributes,
-    XArrayUnits,
-)
+from rdmlibpy.xarrays import XArrayAttributes, XArrayUnits
+
+_ = pint_xarray.unit_registry
 
 
 class TestDataFrameUnits:

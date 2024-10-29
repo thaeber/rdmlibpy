@@ -6,6 +6,8 @@ from omegaconf import OmegaConf
 
 from ..process import Transform
 
+_ = pint_xarray.unit_registry
+
 
 class XArrayUnits(Transform):
     name: str = 'xarray.units'
