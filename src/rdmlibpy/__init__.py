@@ -2,7 +2,7 @@
 __version__ = '0.2.0'
 
 
-from . import dataframes, loaders, metadata, serializers
+from . import dataframes, loaders, metadata, serializers, xarrays
 from .process import DelegatedSource
 from .registry import register
 from .workflow import Workflow, run
@@ -15,6 +15,7 @@ __all__ = [
     loaders,
     metadata,
     serializers,
+    xarrays,
     DelegatedSource,
     register,
     Workflow,
