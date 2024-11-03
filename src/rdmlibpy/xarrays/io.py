@@ -2,8 +2,6 @@ import logging
 from pathlib import Path
 from typing import Dict, List
 
-import netCDF4
-import numpy as np
 import pint_xarray
 from rdmlibpy.metadata.flattery import flatten, rebuild
 import xarray as xr
@@ -106,7 +104,6 @@ class XArrayFileCache(Cache):
         return ds
 
     def _rebuild_attributes(self, source: xr.Dataset):
-
         def update(left, right):
             left.attrs.clear()
             left.attrs.update(**rebuild(right.attrs, sep=self.flatten_separator))

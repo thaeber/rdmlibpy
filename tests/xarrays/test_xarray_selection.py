@@ -3,7 +3,6 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from rdmlibpy.loaders import ChannelTCLoggerLoader
 from rdmlibpy.xarrays import XArraySelectTimespan
 
 
@@ -14,7 +13,7 @@ class TestSelectTimespan:
         assert loader.name == 'xarray.select.timespan'
         assert loader.version == '1'
 
-        assert loader.drop == True
+        assert loader.drop is True
 
     def test_timestamp_as_coord(self, data_path: Path):
         # create test data

@@ -16,7 +16,6 @@ def flatten(mapping: Mapping[str, Any], sep: str = '.'):
 
 
 def rebuild(mapping: Mapping[str, Any], sep: str = '.'):
-
     def _insert_key(key: str, value: Any, current: Dict[str, Any]):
         index = key.find(sep)
         if index == -1:

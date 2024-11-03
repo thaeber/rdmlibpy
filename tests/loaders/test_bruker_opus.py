@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 import xarray as xr
 
 from rdmlibpy.loaders import BrukerOpusLoader
@@ -15,10 +14,10 @@ class TestBrukerOpusLoader:
         assert loader.version == '1'
 
         assert loader.spectrum == 'a'
-        assert loader.concatenate == True
+        assert loader.concatenate is True
         assert loader.concat_dim == 'timestamp'
         assert loader.date_format == '%d/%m/%Y %H:%M:%S.%f'
-        assert loader.squeeze == True
+        assert loader.squeeze is True
 
     def test_load_single(self, data_path: Path):
         loader = BrukerOpusLoader()
