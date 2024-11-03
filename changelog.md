@@ -1,4 +1,21 @@
 <!-- insertion marker -->
+<a name="v0.2.0"></a>
+
+## [v0.2.0](https://github.com/thaeber/rdmlibpy/compare/v0.1.12...v0.2.0) (2024-11-03)
+
+### Features
+
+- Cache nested dicts in xarray attributes (#23) ([cfbc266](https://github.com/thaeber/rdmlibpy/commit/cfbc2665abbc943fd85a4fa4f859c55cbac02186))
+- Utility function to flatten and rebuilding nested dicts (#22) ([0517073](https://github.com/thaeber/rdmlibpy/commit/0517073d5d511a07e5c939e15d329dc3dececb51))
+- File cache for xarray objects (DataArray & Dataset) (#21) ([c26381a](https://github.com/thaeber/rdmlibpy/commit/c26381aedd33469d36398947963b5eab4722e5d2))
+- Set units and attributes on xarray objects (#20) ([86fd515](https://github.com/thaeber/rdmlibpy/commit/86fd51511ba144aa4894d687987bd00d3040814b))
+- Select timespan in xarray (#19) ([4e718a1](https://github.com/thaeber/rdmlibpy/commit/4e718a133bdbdf568be26fcf98cfd4e5137f3a97))
+- Basic loader for Bruker OPUS files (#18) ([2db5344](https://github.com/thaeber/rdmlibpy/commit/2db5344e44ecf50a37be45a0d9fdf8974559f8ed))
+
+### Chore
+
+- pre-commit run -a ([0c2e71c](https://github.com/thaeber/rdmlibpy/commit/0c2e71c0ae45286274bf2cc52778ac3978b933ff))
+- Explicit usage of pint_xarray to avoid it being stripped in pre-commit hook ([de394fa](https://github.com/thaeber/rdmlibpy/commit/de394fa8a4906264ecae2c8a042ab62d8b5cb403))
 
 <a name="v0.1.12"></a>
 
@@ -7,6 +24,10 @@
 ### Bug Fixes
 
 - Pandas 3.0 deprecation warning ([e7c588a](https://github.com/thaeber/rdmlibpy/commit/e7c588a6b3b490dda8af9b5bf431285e678e4539))
+
+### Chore
+
+- Updated changelog and running pre-commit ([0bedc7d](https://github.com/thaeber/rdmlibpy/commit/0bedc7d8b8539d45bf335a8ee651862e83efccb3))
 
 <a name="v0.1.11"></a>
 
@@ -72,7 +93,7 @@
 - Renamed "target" parameter to "filename" ([33d31e3](https://github.com/thaeber/rdmlibpy/commit/33d31e3011b78ab4999d8e7d21d781e2cc0840c3))
 - Test for process id ([41203c0](https://github.com/thaeber/rdmlibpy/commit/41203c0169b2a6ce3ddf4a2c092b0566b29ed58c))
 - Fixed typo in "dataframe.cache" process id (#9) ([f6acb32](https://github.com/thaeber/rdmlibpy/commit/f6acb32ef7c1026d6a1f4c0f956605ec1fc72d64))
-- Renamed process to "dataframe.\[read|write\].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
+- Renamed process to "dataframe.[read|write].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
 - DataFrameWriteCSV.run() did not return input value (#7) ([a297aa0](https://github.com/thaeber/rdmlibpy/commit/a297aa03a556fca1684b20fc2cda6c26855834cd))
 
 ### Features
@@ -125,7 +146,7 @@
 
 ### Style
 
-- Renamed "select.\[columns|timespan\]" to "dataframe.select.\[columns|timespan\]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
+- Renamed "select.[columns|timespan]" to "dataframe.select.[columns|timespan]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
 
 <a name="v0.1.3"></a>
 
@@ -138,3 +159,4 @@
 <a name="v0.1.1"></a>
 
 ## [v0.1.1](https://github.com/thaeber/rdmlibpy/compare/b6e05adfa1b72a75295601854b5caaedc1876993...v0.1.1) (2024-04-01)
+
