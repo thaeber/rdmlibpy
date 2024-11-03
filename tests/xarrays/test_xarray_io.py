@@ -269,6 +269,55 @@ class TestDataFrameFileCache:
         # assert content
         assert source.attrs == cached.attrs
 
+    def test_preserve_attrs_on_variables(self, tmp_path):
+        path = tmp_path / 'cache.h5'
+        source = xr.Dataset(
+            dict(
+                A=('x', [1.1, 2.2, 3.3], {'a_type': 'float'}),
+                B=('x', ['aa', 'bb', 'cc'], {'´b_type': 'string'}),
+                C=(
+                    'x',
+                    [
+                        '2024-01-16T10:05:28.537',
+                        '2024-01-16T10:05:29.735',
+                        '2024-01-16T10:05:30.935',
+                    ],
+                    {'c_type': 'time'},
+                ),
+            ),
+            coords=dict(x=('x', [3, 4, 5], {'x_type': 'int'})),
+        )
+        source = source.pint.quantify(x='s', A='m')
+        source.attrs.update(
+            {
+                'date': '2024-04-26',
+                'inlet.flow_rate': '1.0L/min',
+                'inlet.scale': 2.0,
+            }
+        )
+
+        workflow = ProcessNode(
+            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
+            XArrayFileCache(),
+            {
+                'filename': PlainProcessParam(str(path)),
+            },
+        )
+
+        # create cache
+        assert not path.exists()
+        workflow.run()
+
+        # load cached version (by running process again)
+        cached = workflow.run()
+        assert cached is not source
+
+        # check data integrity
+        xarray.testing.assert_identical(source, cached)
+
+        # assert content
+        assert source.attrs == cached.attrs
+
     def test_cache_data_array(self, tmp_path):
         path = tmp_path / 'cache.h5'
         source = xr.DataArray(
@@ -350,7 +399,74 @@ class TestDataFrameFileCache:
         # assert name
         assert source.name == cached.name
 
+    def test_preserve_nested_dicts_in_attrs(self, tmp_path):
+        path = tmp_path / 'cache.h5'
+        source = xr.Dataset(
+            dict(
+                A=(
+                    'x',
+                    [1.1, 2.2, 3.3],
+                    {
+                        'a': '2024-04-26',
+                        'b': {
+                            'c': 1,
+                            'd': 2.0,
+                        },
+                    },
+                ),
+                B=('x', ['aa', 'bb', 'cc']),
+                C=(
+                    'x',
+                    [
+                        '2024-01-16T10:05:28.537',
+                        '2024-01-16T10:05:29.735',
+                        '2024-01-16T10:05:30.935',
+                    ],
+                ),
+            ),
+            coords=dict(
+                x=(
+                    'x',
+                    [3, 4, 5],
+                    {
+                        'a': '2024-04-26',
+                        'b': {
+                            'c': 1,
+                            'd': 2.0,
+                        },
+                    },
+                )
+            ),
+        )
+        source = source.pint.quantify(x='s', A='m')
+        source.attrs.update(
+            {
+                'date': '2024-04-26',
+                'inlet': {
+                    'flow_rate': '1.0L/min',
+                    'scale': 2.0,
+                },
+            }
+        )
 
-@pytest.mark.skip()
-def test_preserve_nested_dicts_in_attrs(self, tmp_path):
-    assert False
+        workflow = ProcessNode(
+            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
+            XArrayFileCache(),
+            {
+                'filename': PlainProcessParam(str(path)),
+            },
+        )
+
+        # create cache
+        assert not path.exists()
+        workflow.run()
+
+        # load cached version (by running process again)
+        cached = workflow.run()
+        assert cached is not source
+
+        # check data integrity
+        xarray.testing.assert_identical(source, cached)
+
+        # assert content
+        assert source.attrs == cached.attrs

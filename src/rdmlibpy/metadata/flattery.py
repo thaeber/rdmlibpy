@@ -33,7 +33,7 @@ def rebuild(mapping: Mapping[str, Any], sep: str = '.'):
                 current[level] = dict()
             _insert_key(key[index + len(sep) :], value, current[level])
 
-    result = {}
+    result: Dict[str, Any] = {}
     for key, value in mapping.items():
         _insert_key(key, value, result)
 

@@ -5,6 +5,7 @@ from typing import Dict, List
 import netCDF4
 import numpy as np
 import pint_xarray
+from rdmlibpy.metadata.flattery import flatten, rebuild
 import xarray as xr
 
 from .._typing import FilePath
@@ -21,10 +22,17 @@ class XArrayFileCache(Cache):
     name: str = 'xarray.cache'
     version: str = '1'
 
+    flatten_attributes: bool = True
+    flatten_separator: str = ':::'
+
     def read(self, filename: FilePath, rebuild: bool = False, **kwargs):
         # load data from netCDF4 file
         # cached = xr.load_dataset(filename, engine='netcdf4')
         cached = xr.load_dataset(filename, engine='h5netcdf')
+
+        # rebuild nested dicts in attrs
+        if self.flatten_attributes:
+            cached = self._rebuild_attributes(cached)
 
         # convert to pint units, if present
         cached = cached.pint.quantify()
@@ -67,6 +75,10 @@ class XArrayFileCache(Cache):
         # promote units to attributes
         ds = ds.pint.dequantify()
 
+        # flatten nested dicts in attrs
+        if self.flatten_attributes:
+            ds = self._flatten_attributes(ds)
+
         # create path (if necessary)
         self.ensure_path(filename)
 
@@ -79,41 +91,31 @@ class XArrayFileCache(Cache):
             return False
         return Path(filename).exists()
 
+    def _flatten_attributes(self, source: xr.Dataset):
+        def update(left, right):
+            left.attrs.clear()
+            left.attrs.update(**flatten(right.attrs, sep=self.flatten_separator))
 
-# def dequantify(df: pd.DataFrame):
-#     df_new = df.pint.dequantify()
-#     df_new = cast(pd.DataFrame, df_new)
+        ds = source.copy()
+        update(ds, source)
+        for name in ds.data_vars:
+            update(ds[name], source[name])
+        for name in ds.coords:
+            update(ds[name], source[name])
 
-#     # preserve attrs dictionary
-#     df_new.attrs.update(df.attrs)
+        return ds
 
-#     return df_new
+    def _rebuild_attributes(self, source: xr.Dataset):
 
+        def update(left, right):
+            left.attrs.clear()
+            left.attrs.update(**rebuild(right.attrs, sep=self.flatten_separator))
 
-# def quantify(df, level=-1):
-#     # Fix for https://github.com/hgrecco/pint-pandas/pull/217
-#     # (remove once that fix is rolled out in the next release of
-#     # pint-pandas)
-#     df_columns = df.columns.to_frame()
-#     unit_col_name = df_columns.columns[level]
-#     units = df_columns[unit_col_name]
-#     df_columns = df_columns.drop(columns=unit_col_name)
+        ds = source.copy()
+        update(ds, source)
+        for name in ds.data_vars:
+            update(ds[name], source[name])
+        for name in ds.coords:
+            update(ds[name], source[name])
 
-#     df_new = pd.DataFrame(
-#         {
-#             i: (
-#                 pint_pandas.PintArray(df.iloc[:, i], unit)
-#                 if unit != pint_pandas.pint_array.NO_UNIT
-#                 else df.iloc[:, i]
-#             )
-#             for i, unit in enumerate(units.values)
-#         }
-#     )
-
-#     df_new.columns = df_columns.index.droplevel(unit_col_name)
-#     df_new.index = df.index
-
-#     # preserve attrs dictionary
-#     df_new.attrs.update(df.attrs)
-
-#     return df_new
+        return ds
