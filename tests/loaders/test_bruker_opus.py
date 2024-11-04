@@ -51,3 +51,39 @@ class TestBrukerOpusLoader:
         assert da.timestamp[0] == np.datetime64('2024-10-17T16:19:04.075')
         assert da.timestamp[1] == np.datetime64('2024-10-17T16:19:08.559')
         assert da.timestamp[2] == np.datetime64('2024-10-17T16:19:13.069')
+
+    def test_sorted_timestamps(self, data_path: Path):
+        loader = BrukerOpusLoader()
+        da = loader.run(
+            source=[
+                data_path / 'bruker/LC003.3450',
+                data_path / 'bruker/LC003.3448',
+                data_path / 'bruker/LC003.3449',
+            ]
+        )
+        assert isinstance(da, xr.DataArray)
+        assert da.dims == ('timestamp', 'nu')
+        assert len(da.nu) == 4978  # type: ignore
+        assert len(da.timestamp) == 3  # type: ignore
+
+        assert da.timestamp[0] == np.datetime64('2024-10-17T16:19:04.075')
+        assert da.timestamp[1] == np.datetime64('2024-10-17T16:19:08.559')
+        assert da.timestamp[2] == np.datetime64('2024-10-17T16:19:13.069')
+
+    def test_unsorted_timestamps(self, data_path: Path):
+        loader = BrukerOpusLoader(sort_by_timestamp=False)
+        da = loader.run(
+            source=[
+                data_path / 'bruker/LC003.3450',
+                data_path / 'bruker/LC003.3448',
+                data_path / 'bruker/LC003.3449',
+            ]
+        )
+        assert isinstance(da, xr.DataArray)
+        assert da.dims == ('timestamp', 'nu')
+        assert len(da.nu) == 4978  # type: ignore
+        assert len(da.timestamp) == 3  # type: ignore
+
+        assert da.timestamp[0] == np.datetime64('2024-10-17T16:19:13.069')
+        assert da.timestamp[1] == np.datetime64('2024-10-17T16:19:04.075')
+        assert da.timestamp[2] == np.datetime64('2024-10-17T16:19:08.559')

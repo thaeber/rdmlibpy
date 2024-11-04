@@ -1,7 +1,7 @@
 import abc
 import os
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, List, Sequence
 
 from rdmlibpy.base import ProcessBase, ProcessNode
 
@@ -17,25 +17,31 @@ class DelegatedSource(ProcessBase):
 
 class Loader(ProcessBase):
     @staticmethod
-    def glob(source: str | os.PathLike):
-        path = Path(source)
+    def glob(source: str | os.PathLike | List[str | os.PathLike]):
+        if isinstance(source, List):
+            for item in source:
+                yield from Loader.glob(item)
+        else:
+            path = Path(source)
 
-        path = path.absolute()
-        try:
-            parts = list(path.parts)
-            idx = parts.index('**')
-            root = path.parents[len(parts) - 1 - idx]
-            pattern = str(path.relative_to(root))
-        except ValueError:
-            root = path.parent
-            pattern = path.name
+            path = path.absolute()
+            try:
+                parts = list(path.parts)
+                idx = parts.index('**')
+                root = path.parents[len(parts) - 1 - idx]
+                pattern = str(path.relative_to(root))
+            except ValueError:
+                root = path.parent
+                pattern = path.name
 
-        sources = list(root.glob(pattern))
+            sources = list(root.glob(pattern))
 
-        if not sources:
-            raise FileNotFoundError(f'No sources found matching expression: {source}')
-        for src in sources:
-            yield src
+            if not sources:
+                raise FileNotFoundError(
+                    f'No sources found matching expression: {source}'
+                )
+            for src in sources:
+                yield src
 
 
 class Writer(ProcessBase):

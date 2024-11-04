@@ -24,6 +24,7 @@ class BrukerOpusLoader(Loader):
     squeeze: bool = (
         True  # return DataArray instance of List[DataArray] for single spectrum
     )
+    sort_by_timestamp: bool = True
 
     def run(self, source):
         # load using filename (possible a glob pattern)
@@ -31,8 +32,12 @@ class BrukerOpusLoader(Loader):
         generator = filter(lambda a: a is not None, generator)
         if self.concatenate:
             data = xr.concat(generator, dim=self.concat_dim)
+            if self.sort_by_timestamp:
+                data = data.sortby('timestamp')
         else:
             data = list(generator)
+            if self.sort_by_timestamp:
+                data = sorted(data, key=lambda da: da.timestamp)
             if self.squeeze and len(data) == 1:
                 data = data[0]
         return data
