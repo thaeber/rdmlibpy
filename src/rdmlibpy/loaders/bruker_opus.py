@@ -1,6 +1,6 @@
-# %%
 import logging
 from datetime import datetime
+from typing import Literal
 
 import xarray as xr
 from brukeropus import read_opus
@@ -8,16 +8,16 @@ from brukeropus import read_opus
 from rdmlibpy._typing import FilePath
 from rdmlibpy.process import Loader
 
-# %%
 logger = logging.getLogger(__name__)
 
+TypeOfSpectrum = Literal['absorbance']
 
-# %%
+
 class BrukerOpusLoader(Loader):
     name: str = 'bruker.opus'
     version: str = '1'
 
-    spectrum: str = 'a'  # load absorbance spectra by default
+    spectrum: TypeOfSpectrum = 'absorbance'  # load absorbance spectra by default
     concatenate: bool = True  # concatenate spectra if a glob pattern is provided
     concat_dim: str = 'timestamp'
     date_format: str = '%d/%m/%Y %H:%M:%S.%f'
@@ -47,8 +47,9 @@ class BrukerOpusLoader(Loader):
         logger.debug(f'Loading OPUS file: {source}')
         opus_file = read_opus(str(source))
 
-        logger.debug(f'Extracting spectrum of type: {self.spectrum}')
-        spectrum = getattr(opus_file, self.spectrum)
+        key = self.spectrum_key
+        logger.debug(f'Extracting spectrum of type: {self.spectrum} (key: {key})')
+        spectrum = getattr(opus_file, key)
         da = xr.DataArray(
             spectrum.y, coords=dict(nu=spectrum.x), dims='nu', name=self.spectrum
         )
@@ -61,6 +62,13 @@ class BrukerOpusLoader(Loader):
         da['timestamp'] = datetime.strptime(time_str, self.date_format)
 
         return da
+
+    @property
+    def spectrum_key(self):
+        if self.spectrum == 'absorbance':
+            return 'a'
+        else:
+            raise ValueError(f'Unknown spectral type: {self.spectrum}')
 
 
 # da = BrukerOpusLoader(concatenate=True).run(

@@ -13,7 +13,7 @@ class TestBrukerOpusLoader:
         assert loader.name == 'bruker.opus'
         assert loader.version == '1'
 
-        assert loader.spectrum == 'a'
+        assert loader.spectrum == 'absorbance'
         assert loader.concatenate is True
         assert loader.concat_dim == 'timestamp'
         assert loader.date_format == '%d/%m/%Y %H:%M:%S.%f'
