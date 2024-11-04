@@ -1,4 +1,12 @@
 <!-- insertion marker -->
+<a name="v0.2.3"></a>
+
+## [v0.2.3](https://github.com/thaeber/rdmlibpy/compare/v0.2.2...v0.2.3) (2024-11-04)
+
+### Bug Fixes
+
+- By default sort Opus spectra by timestamp ([5b65d1d](https://github.com/thaeber/rdmlibpy/commit/5b65d1d3b09c70a94f312e95dba41a3f03dcaa31))
+
 <a name="v0.2.2"></a>
 
 ## [v0.2.2](https://github.com/thaeber/rdmlibpy/compare/v0.2.1...v0.2.2) (2024-11-04)
@@ -6,6 +14,10 @@
 ### Bug Fixes
 
 - Use descriptive name for spectral type when loading Opus spectra ([85e490b](https://github.com/thaeber/rdmlibpy/commit/85e490bbbf8e674af5b1c10fff06662c600c20f3))
+
+### Chore
+
+- git-changelog --bump=auto ([8f0de63](https://github.com/thaeber/rdmlibpy/commit/8f0de63602e149866668d3a76e3005d172b90732))
 
 <a name="v0.2.1"></a>
 
