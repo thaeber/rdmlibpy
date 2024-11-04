@@ -1,4 +1,12 @@
 <!-- insertion marker -->
+<a name="v0.2.2"></a>
+
+## [v0.2.2](https://github.com/thaeber/rdmlibpy/compare/v0.2.1...v0.2.2) (2024-11-04)
+
+### Bug Fixes
+
+- Use descriptive name for spectral type when loading Opus spectra ([85e490b](https://github.com/thaeber/rdmlibpy/commit/85e490bbbf8e674af5b1c10fff06662c600c20f3))
+
 <a name="v0.2.1"></a>
 
 ## [v0.2.1](https://github.com/thaeber/rdmlibpy/compare/v0.2.0...v0.2.1) (2024-11-03)
@@ -9,6 +17,7 @@
 
 ### Chore
 
+- git-changelog --bump=auto ([7008518](https://github.com/thaeber/rdmlibpy/commit/700851807b066c0080066239f8e2dc2c55562bf8))
 - pre-commit run -a ([eefc63c](https://github.com/thaeber/rdmlibpy/commit/eefc63c52537c23648df50cec3be64731177b8a4))
 
 <a name="v0.2.0"></a>
