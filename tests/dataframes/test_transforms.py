@@ -5,6 +5,7 @@ import pandas as pd
 import pandas._testing as tm
 import pint_pandas
 
+import pytest
 from rdmlibpy.dataframes import (
     DataFrameAttributes,
     DataFrameFillNA,
@@ -147,6 +148,88 @@ class TestDataFrameJoin:
             [0, 1 + 1 / 3, 2 + 2 / 3, 4, 5 + 1 / 3, 6 + 2 / 3, 8],
             equal_nan=True,
         )
+
+    def test_ignore_nonnumeric_on_interpolate(self):
+        transform = DataFrameJoin()
+        left, right = self._get_test_data()
+        right['C'] = pint_pandas.PintArray(right['C'], dtype='pint[m]')
+        right['obj'] = [
+            'start',
+            'on',
+            np.nan,
+            np.nan,
+            'off',
+            np.nan,
+            'on',
+            np.nan,
+            999,
+        ]
+
+        df = transform.run(left, right, how='left', interpolate=True)
+        assert list(df['obj']) == ['start', np.nan, np.nan, 'off', np.nan, np.nan, 999]
+
+    def test_ffill_nonnumeric_on_interpolate(self):
+        transform = DataFrameJoin()
+        left, right = self._get_test_data()
+        right['C'] = pint_pandas.PintArray(right['C'], dtype='pint[m]')
+        right['obj'] = [
+            np.nan,
+            'on',
+            np.nan,
+            np.nan,
+            'off',
+            np.nan,
+            'on',
+            np.nan,
+            np.nan,
+        ]
+
+        df = transform.run(
+            left, right, how='left', interpolate=True, non_numeric='fill forward'
+        )
+        assert list(df['obj']) == [np.nan, 'on', 'on', 'off', 'off', 'on', 'on']
+
+    def test_bfill_nonnumeric_on_interpolate(self):
+        transform = DataFrameJoin()
+        left, right = self._get_test_data()
+        right['C'] = pint_pandas.PintArray(right['C'], dtype='pint[m]')
+        right['obj'] = [
+            np.nan,
+            'on',
+            np.nan,
+            np.nan,
+            'off',
+            np.nan,
+            'on',
+            np.nan,
+            np.nan,
+        ]
+
+        df = transform.run(
+            left, right, how='left', interpolate=True, non_numeric='fill backward'
+        )
+        assert list(df['obj']) == ['on', 'off', 'off', 'off', 'on', np.nan, np.nan]
+
+    def test_raise_on_nonnumeric_on_interpolate(self):
+        transform = DataFrameJoin()
+        left, right = self._get_test_data()
+        right['C'] = pint_pandas.PintArray(right['C'], dtype='pint[m]')
+        right['obj'] = [
+            'start',
+            'on',
+            np.nan,
+            np.nan,
+            'off',
+            np.nan,
+            'on',
+            np.nan,
+            999,
+        ]
+
+        with pytest.raises(ValueError):
+            df = transform.run(
+                left, right, how='left', interpolate=True, non_numeric='raise'
+            )
 
 
 class TestDataFrameSetIndex:

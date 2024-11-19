@@ -5,6 +5,7 @@ import pandas as pd
 import pint_pandas
 from omegaconf import OmegaConf
 from pandas._typing import JoinHow
+from pandas.api.types import is_numeric_dtype
 
 from ..process import Transform
 
@@ -28,11 +29,14 @@ class DataFrameSetIndex(Transform):
             return df
 
 
+JoinNonNumericMethod = Literal['ignore', 'raise', 'fill forward', 'fill backward']
+
+
 class DataFrameJoin(Transform):
     name: str = 'dataframe.join'
     version: str = '1'
 
-    def interpolate(self, df: pd.DataFrame):
+    def interpolate(self, df: pd.DataFrame, non_numeric: JoinNonNumericMethod):
         # check if indices are datetime64
         if np.issubdtype(df.index.dtype, np.datetime64):  # type: ignore
             x = (df.index - df.index[0]).total_seconds()
@@ -41,27 +45,38 @@ class DataFrameJoin(Transform):
 
         # interpolate columns
         for col in df.columns:
-            if isinstance(df[col].values, pint_pandas.PintArray):
-                isnan = np.isnan(df[col].pint.m)
-                xp = x[~isnan]
-                yp = df[col].pint.m[~isnan]
-                try:
-                    df[col] = pint_pandas.PintArray(
-                        np.interp(x, xp, yp), dtype=df[col].dtype
-                    )
-                except ValueError:
-                    values = df[col].pint.m.values
-                    df[col] = pint_pandas.PintArray(
-                        np.full_like(values, np.nan), dtype=df[col].dtype
-                    )
+            if is_numeric_dtype(df[col]):
+                if isinstance(df[col].values, pint_pandas.PintArray):
+                    isnan = np.isnan(df[col].pint.m)
+                    xp = x[~isnan]
+                    yp = df[col].pint.m[~isnan]
+                    try:
+                        df[col] = pint_pandas.PintArray(
+                            np.interp(x, xp, yp), dtype=df[col].dtype
+                        )
+                    except ValueError:
+                        values = df[col].pint.m.values
+                        df[col] = pint_pandas.PintArray(
+                            np.full_like(values, np.nan), dtype=df[col].dtype
+                        )
+                else:
+                    isnan = np.isnan(df[col])
+                    xp = x[~isnan]
+                    yp = df[col][~isnan]
+                    try:
+                        df[col] = np.interp(x, xp, yp)
+                    except ValueError:
+                        df[col] = np.full_like(df[col].values, np.nan)
             else:
-                isnan = np.isnan(df[col])
-                xp = x[~isnan]
-                yp = df[col][~isnan]
-                try:
-                    df[col] = np.interp(x, xp, yp)
-                except ValueError:
-                    df[col] = np.full_like(df[col].values, np.nan)
+                match non_numeric:
+                    case 'ignore':
+                        pass
+                    case 'fill forward':
+                        df[col] = df[col].ffill()
+                    case 'fill backward':
+                        df[col] = df[col].bfill()
+                    case 'raise':
+                        raise ValueError('Cannot interpolate non-numeric data on join.')
 
         return df
 
@@ -71,11 +86,12 @@ class DataFrameJoin(Transform):
         right: pd.DataFrame,
         how: JoinHow = 'outer',
         interpolate: bool = False,
+        non_numeric: JoinNonNumericMethod = 'ignore',
     ):
         if interpolate:
             # joined = left.join(right, how='outer').interpolate(method='index')
             joined = left.join(right, how='outer')
-            joined = self.interpolate(joined)
+            joined = self.interpolate(joined, non_numeric)
             if how == 'left':
                 return left[[]].join(joined, how='left')
             elif how == 'right':
