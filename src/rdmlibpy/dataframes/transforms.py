@@ -254,7 +254,7 @@ class DataFrameTimeOffset(Transform):
 
         # check if column is a datetime type
         if not is_datetime64_dtype(source[column]):
-            raise ValueError(f'Column [column] is not of type datetime64.')
+            raise ValueError('Column [column] is not of type datetime64.')
 
         # apply offset
         source[column] += offset
