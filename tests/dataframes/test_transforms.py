@@ -11,6 +11,7 @@ from rdmlibpy.dataframes import (
     DataFrameFillNA,
     DataFrameJoin,
     DataFrameSetIndex,
+    DataFrameTimeOffset,
     DataFrameUnits,
 )
 from rdmlibpy.loaders import ChannelTCLoggerLoader
@@ -400,3 +401,83 @@ class TestDataFrameAttributes:
         # dictionaries should not be equal
         attrs['A4']['B4']['C4'] = 'test'  # type: ignore
         assert not (dict(actual.attrs) == dict(attrs))
+
+
+class TestDataFrameTimeOffset:
+    def test_create(self):
+        process = DataFrameTimeOffset()
+
+        assert process.name == 'dataframe.timeoffset'
+        assert process.version == '1'
+
+    def test_apply_offset_as_string(self):
+        source = pd.DataFrame(
+            dict(
+                timestamp=[
+                    np.datetime64('2024-11-19T16:17:15'),
+                    np.datetime64('2024-11-19T16:23:30'),
+                    np.datetime64('2024-11-19T16:50:45'),
+                ],
+                A=[1, 2, 3],
+            )
+        )
+
+        df = DataFrameTimeOffset().run(source, offset='-10s', column='timestamp')
+
+        assert list(df.timestamp) == [
+            np.datetime64('2024-11-19T16:17:05'),
+            np.datetime64('2024-11-19T16:23:20'),
+            np.datetime64('2024-11-19T16:50:35'),
+        ]
+
+    def test_apply_offset_as_string_with_fractional_seconds(self):
+        source = pd.DataFrame(
+            dict(
+                timestamp=[
+                    np.datetime64('2024-11-19T16:17:15'),
+                    np.datetime64('2024-11-19T16:23:30'),
+                    np.datetime64('2024-11-19T16:50:45'),
+                ],
+                A=[1, 2, 3],
+            )
+        )
+
+        df = DataFrameTimeOffset().run(source, offset='-9.4s', column='timestamp')
+
+        assert list(df.timestamp) == [
+            np.datetime64('2024-11-19T16:17:05.6'),
+            np.datetime64('2024-11-19T16:23:20.6'),
+            np.datetime64('2024-11-19T16:50:35.6'),
+        ]
+
+    def test_apply_offset_without_column(self):
+        source = pd.DataFrame(
+            dict(
+                timestamp=[
+                    np.datetime64('2024-11-19T16:17:15'),
+                    np.datetime64('2024-11-19T16:23:30'),
+                    np.datetime64('2024-11-19T16:50:45'),
+                ],
+                A=[1, 2, 3],
+            )
+        )
+
+        df = DataFrameTimeOffset().run(source, offset='-9.4s')
+
+        assert df is source
+
+    def test_apply_offset_without_offset(self):
+        source = pd.DataFrame(
+            dict(
+                timestamp=[
+                    np.datetime64('2024-11-19T16:17:15'),
+                    np.datetime64('2024-11-19T16:23:30'),
+                    np.datetime64('2024-11-19T16:50:45'),
+                ],
+                A=[1, 2, 3],
+            )
+        )
+
+        df = DataFrameTimeOffset().run(source, column='timestamp')
+
+        assert df is source
