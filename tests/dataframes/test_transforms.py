@@ -227,7 +227,7 @@ class TestDataFrameJoin:
         ]
 
         with pytest.raises(ValueError):
-            df = transform.run(
+            transform.run(
                 left, right, how='left', interpolate=True, non_numeric='raise'
             )
 

@@ -1,7 +1,7 @@
 import abc
 import os
 from pathlib import Path
-from typing import Any, Callable, List, Sequence
+from typing import Any, Callable, List
 
 from rdmlibpy.base import ProcessBase, ProcessNode
 
