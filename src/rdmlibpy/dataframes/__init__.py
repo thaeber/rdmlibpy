@@ -7,6 +7,7 @@ from .transforms import (
     DataFrameInterpolate,
     DataFrameJoin,
     DataFrameSetIndex,
+    DataFrameTimeOffset,
     DataFrameUnits,
 )
 
@@ -19,6 +20,7 @@ register(DataFrameFillNA())
 register(DataFrameInterpolate())
 register(DataFrameJoin())
 register(DataFrameSetIndex())
+register(DataFrameTimeOffset())
 register(DataFrameUnits())
 
 register(SelectColumns())

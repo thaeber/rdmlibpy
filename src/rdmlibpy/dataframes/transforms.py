@@ -1,11 +1,13 @@
-from typing import Iterable, List, Literal, Mapping
+import datetime
+from typing import Any, Iterable, List, Literal, Mapping
 
 import numpy as np
 import pandas as pd
+import pint
 import pint_pandas
 from omegaconf import OmegaConf
 from pandas._typing import JoinHow
-from pandas.api.types import is_numeric_dtype
+from pandas.api.types import is_datetime64_dtype, is_numeric_dtype
 
 from ..process import Transform
 
@@ -226,4 +228,36 @@ class DataFrameAttributes(Transform):
         )
 
         source.attrs.update(attrs)  # type: ignore
+        return source
+
+
+class DataFrameTimeOffset(Transform):
+    name: str = 'dataframe.timeoffset'
+    version: str = '1'
+
+    def run(
+        self, source: pd.DataFrame, offset: Any | None = None, column: str | None = None
+    ):
+        if (offset is None) or (column is None):
+            return source
+
+        if isinstance(offset, str):
+            # convert string with units to timedelta
+            ureg = pint.application_registry.get()
+            Q = ureg(offset)
+            offset = datetime.timedelta(
+                microseconds=float(Q.to('microseconds').magnitude)
+            )
+
+            # convert to numpy.timedelta64
+            # offset = np.timedelta64(offset)
+
+        # check if column is a datetime type
+        if not is_datetime64_dtype(source[column]):
+            raise ValueError(f'Column [column] is not of type datetime64.')
+
+        # apply offset
+        source[column] += offset
+
+        # return modified dataframe
         return source
