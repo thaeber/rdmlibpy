@@ -317,7 +317,7 @@ class TestDataFrameWriteCSV:
                 ],
             )
         )
-        df['E'] = pint_pandas.PintArray([1.0, 2.0, 3.0], dtype='pint[m]')
+        df['E'] = pint_pandas.PintArray([1.0, 2.0, 3.0], dtype='pint[m][float64]')
         path = tmp_path / 'data.csv'
 
         writer = DataFrameWriteCSV()
@@ -366,7 +366,7 @@ class TestDataFrameWriteCSV:
                 B=['aa', 'bb', 'cc'],
             )
         )
-        df['E'] = pint_pandas.PintArray([1.0, 2.0, 3.0], dtype='pint[m]')
+        df['E'] = pint_pandas.PintArray([1.0, 2.0, 3.0], dtype='pint[m][float64]')
         path = tmp_path / 'data.csv'
 
         writer = DataFrameWriteCSV()
@@ -438,7 +438,7 @@ class TestDataFrameWriteCSV:
             data=dict(
                 A=pd.Series([1.1, 2.2, 3.3]),
                 B=pd.Series(['aa', 'bb', 'cc']),
-                E=pd.Series([1.0, 2.0, 3.0], dtype='pint[m]'),
+                E=pd.Series([1.0, 2.0, 3.0], dtype='pint[m][float64]'),
             )
         )
         df.attrs.update(
@@ -718,7 +718,7 @@ class TestDataFrameFileCache:
                 D=['R1', 'R2', 'R3'],
             ),
         )
-        df['E'] = pint_pandas.PintArray([1.0, 2.0, 3.0], dtype='pint[m]')
+        df['E'] = pint_pandas.PintArray([1.0, 2.0, 3.0], dtype='pint[m][float64]')
         original = df.copy(deep=True)
 
         workflow = ProcessNode(

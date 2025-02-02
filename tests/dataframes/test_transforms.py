@@ -29,13 +29,15 @@ class TestDataFrameJoin:
             data=dict(
                 A=[0, 2, 4, 6, 8, 10, 12],
                 B=[0, 1, 2, 3, 4, 5, 6],
-            )
+            ),
+            dtype=np.float64,
         ).set_index('A')
         right = pd.DataFrame(
             data=dict(
                 A=[0, 1.5, 3, 4.5, 6, 7.5, 9, 10.5, 12],
                 C=[0, 1, 2, 3, 4, 5, 6, 7, 8],
-            )
+            ),
+            dtype=np.float64,
         ).set_index('A')
         return left, right
 
@@ -143,7 +145,7 @@ class TestDataFrameJoin:
         assert isinstance(df, pd.DataFrame)
         assert list(df.index) == [0, 2, 4, 6, 8, 10, 12]
         assert list(df.B) == [0, 1, 2, 3, 4, 5, 6]
-        assert df.C.dtype == 'pint[m]'
+        assert df.C.dtype == 'pint[m][float64]'
         assert np.allclose(
             df.C.pint.m,
             [0, 1 + 1 / 3, 2 + 2 / 3, 4, 5 + 1 / 3, 6 + 2 / 3, 8],
@@ -310,7 +312,7 @@ class TestDataFrameUnits:
             df,
             units={'sample-downstream': 'K'},
         )
-        assert df['sample-downstream'].dtype == 'pint[K]'
+        assert df['sample-downstream'].dtype == 'pint[K][float64]'
         assert df['inlet'].dtype == 'float64'
         assert df['outlet'].dtype == 'float64'
 
@@ -329,9 +331,9 @@ class TestDataFrameUnits:
             units={'sample-downstream': 'K'},
             default_unit='degC',
         )
-        assert df['sample-downstream'].dtype == 'pint[K]'
-        assert df['inlet'].dtype == 'pint[degC]'
-        assert df['outlet'].dtype == 'pint[degC]'
+        assert df['sample-downstream'].dtype == 'pint[K][float64]'
+        assert df['inlet'].dtype == 'pint[degC][float64]'
+        assert df['outlet'].dtype == 'pint[degC][float64]'
 
 
 class TestDataFrameAttributes:

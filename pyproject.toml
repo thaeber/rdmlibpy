@@ -11,28 +11,28 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pydantic = "^2.5"
-pandas = "^2.2"
-numpy = "^1.26"
+pydantic = ">=2.5"
+pandas = ">=2.2"
+numpy = ">=1.26"
 pint-pandas = "0.*"
-python-dateutil = "^2.8"
-tables = "^3.9"
-omegaconf = "^2.3"
-brukeropus = "^1.1"
-xarray = "^2024.10.0"
+python-dateutil = ">=2.8"
+tables = ">=3.9"
+omegaconf = ">=2.3"
+brukeropus = ">=1.1"
+xarray = ">=2024.10.0"
 pint-xarray = "0.*"
-netcdf4 = "^1.7"
-h5netcdf = "^1.4"
+netcdf4 = ">=1.7"
+h5netcdf = ">=1.4"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = ">=7.4.2"
-bump-my-version = "^0.20.0"
-pandas-stubs = "^2.2.1.240316"
-pytest-watcher = "^0.4.2"
-git-changelog = "^2.5.2"
-pre-commit = "^3.7.0"
-matplotlib = "^3.9.2"
+pytest = ">=7.4"
+bump-my-version = ">=0.20"
+pandas-stubs = ">=2.2"
+pytest-watcher = ">=0.4"
+git-changelog = ">=2.5"
+pre-commit = ">=3.7"
+matplotlib = ">=3.9"
 
 [build-system]
 requires = ["poetry-core"]
