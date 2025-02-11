@@ -1,4 +1,15 @@
 <!-- insertion marker -->
+<a name="v0.2.8"></a>
+
+## [v0.2.8](https://github.com/thaeber/rdmlibpy/compare/v0.2.7...v0.2.8) (2025-02-11)
+
+### Bug Fixes
+
+- Error in `test_encoding_utf16` ([7f20523](https://github.com/thaeber/rdmlibpy/commit/7f205237906287b3b00065a4df380ddc95dbe707))
+
+### Features
+
+- Coerce invalid date/time values to NaT ([3890e1f](https://github.com/thaeber/rdmlibpy/commit/3890e1f0ffae59a14e21c164abf2d4b5cc253eac))
 
 <a name="v0.2.7"></a>
 
@@ -10,6 +21,7 @@
 
 ### Chore
 
+- git-changelog -B patch ([7175eb9](https://github.com/thaeber/rdmlibpy/commit/7175eb9fba9e781ceeabc899bb7760ceeee892b8))
 - pre-commit run --all ([626f52c](https://github.com/thaeber/rdmlibpy/commit/626f52c76a68a72697eab1e3248be23e9b4451b1))
 
 <a name="v0.2.6"></a>
@@ -174,7 +186,7 @@
 - Renamed "target" parameter to "filename" ([33d31e3](https://github.com/thaeber/rdmlibpy/commit/33d31e3011b78ab4999d8e7d21d781e2cc0840c3))
 - Test for process id ([41203c0](https://github.com/thaeber/rdmlibpy/commit/41203c0169b2a6ce3ddf4a2c092b0566b29ed58c))
 - Fixed typo in "dataframe.cache" process id (#9) ([f6acb32](https://github.com/thaeber/rdmlibpy/commit/f6acb32ef7c1026d6a1f4c0f956605ec1fc72d64))
-- Renamed process to "dataframe.\[read|write\].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
+- Renamed process to "dataframe.[read|write].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
 - DataFrameWriteCSV.run() did not return input value (#7) ([a297aa0](https://github.com/thaeber/rdmlibpy/commit/a297aa03a556fca1684b20fc2cda6c26855834cd))
 
 ### Features
@@ -227,7 +239,7 @@
 
 ### Style
 
-- Renamed "select.\[columns|timespan\]" to "dataframe.select.\[columns|timespan\]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
+- Renamed "select.[columns|timespan]" to "dataframe.select.[columns|timespan]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
 
 <a name="v0.1.3"></a>
 
@@ -240,3 +252,4 @@
 <a name="v0.1.1"></a>
 
 ## [v0.1.1](https://github.com/thaeber/rdmlibpy/compare/b6e05adfa1b72a75295601854b5caaedc1876993...v0.1.1) (2024-04-01)
+
