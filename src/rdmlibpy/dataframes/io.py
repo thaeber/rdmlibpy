@@ -95,7 +95,7 @@ class DataFrameReadCSVBase(Loader):
             return df[column_names].astype(str).agg(' '.join, axis=1)
 
         # generate datetime series from columns
-        dt = pd.to_datetime(join_columns(column_names), format=self.date_format)
+        dt = self._to_datetime(join_columns(column_names))
 
         # drop source columns
         df = df.drop(columns=column_names)
@@ -115,12 +115,15 @@ class DataFrameReadCSVBase(Loader):
             )
 
         # "pop" column & generate datetime series
-        dt = pd.to_datetime(df.pop(column), format=self.date_format)
+        dt = self._to_datetime(df.pop(column))
 
         # insert new column at original index
         df.insert(index, column, dt)
 
         return df
+
+    def _to_datetime(self, df: pd.Series):
+        return pd.to_datetime(df, format=self.date_format, errors='coerce')
 
 
 class DataFrameReadCSV(DataFrameReadCSVBase):

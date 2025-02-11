@@ -127,6 +127,24 @@ class TestDataFrameReadCSV:
         assert df.loc[1, 'timestamp'] == np.datetime64('2024-04-19T12:20:01')
         assert df.loc[2, 'timestamp'] == np.datetime64('2024-04-20T12:21:01')
 
+    def test_coerce_invalid_datetime_to_NaT(self):
+        data = """
+            idx,timestamp,A,B,C
+            1,2024-04-18T12:00:01,a,b,c
+            2,2024-04-19T1x:20:01,d,e,f
+            3,2024-04-20T12:21:01,g,h,i
+        """
+        stream = io.StringIO(dedent(data))
+        loader = DataFrameReadCSV(decimal='.', separator=',', parse_dates=['timestamp'])
+        df = loader.run(stream)
+
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 3
+        assert list(df.columns) == ['idx', 'timestamp', 'A', 'B', 'C']
+        assert df.loc[0, 'timestamp'] == np.datetime64('2024-04-18T12:00:01')
+        assert df.loc[1, 'timestamp'] is pd.NaT
+        assert df.loc[2, 'timestamp'] == np.datetime64('2024-04-20T12:21:01')
+
     def test_runtime_arguments(self):
         data = """
             1,2024-04-18T12:00:01,3.0,b,c
