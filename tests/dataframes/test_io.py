@@ -141,9 +141,17 @@ class TestDataFrameReadCSV:
         assert len(df) == 3
         assert list(df.columns) == ['idx', 'timestamp', 'A', 'B', 'C']
 
-    def test_encoding_utf16(self, data_path):
+    def test_encoding_utf16(self):
+        data = """
+            A;B;C
+            0;a;100.1
+            1;b;200.2
+            2;c;300.3
+        """
+        data = dedent(data).encode('utf-16')
+        stream = io.BytesIO(data)
         loader = DataFrameReadCSV(decimal='.', separator=';', encoding='utf-16')
-        df = loader.run(data_path / 'dataframe/test_data_utf16.csv')
+        df = loader.run(stream)
 
         assert isinstance(df, pd.DataFrame)
         assert len(df) == 3
@@ -153,8 +161,15 @@ class TestDataFrameReadCSV:
         assert list(df.C) == [100.1, 200.2, 300.3]
 
     def test_thousands_separator(self, data_path):
+        data = """
+            A;B;C
+            0;a;10,000.1
+            1;b;2,000.2
+            2;c;30,003.3
+        """
+        stream = io.StringIO(dedent(data))
         loader = DataFrameReadCSV(decimal='.', separator=';', thousands=',')
-        df = loader.run(data_path / 'dataframe/test_data_thousands.csv')
+        df = loader.run(stream)
 
         assert isinstance(df, pd.DataFrame)
         assert len(df) == 3
