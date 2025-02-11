@@ -141,6 +141,26 @@ class TestDataFrameReadCSV:
         assert len(df) == 3
         assert list(df.columns) == ['idx', 'timestamp', 'A', 'B', 'C']
 
+    def test_encoding_utf16(self, data_path):
+        loader = DataFrameReadCSV(decimal='.', separator=';', encoding='utf-16')
+        df = loader.run(data_path / 'dataframe/test_data_utf16.csv')
+
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 3
+        assert list(df.columns) == ['A', 'B', 'C']
+        assert list(df.A) == [0, 1, 2]
+        assert list(df.B) == ['a', 'b', 'c']
+        assert list(df.C) == [100.1, 200.2, 300.3]
+
+    def test_thousands_separator(self, data_path):
+        loader = DataFrameReadCSV(decimal='.', separator=';', thousands=',')
+        df = loader.run(data_path / 'dataframe/test_data_thousands.csv')
+
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 3
+        assert list(df.columns) == ['A', 'B', 'C']
+        assert list(df.C) == [10000.1, 2000.2, 30003.3]
+
 
 class TestDataFrameWriteCSV:
     def test_create_loader(self):
@@ -405,7 +425,7 @@ class TestDataFrameWriteCSV:
             )
         )
         df.attrs.update(
-            dict(
+            **dict(
                 date='2024-04-27',
                 trial=3,
                 inlet=dict(flow_rate='1.0L/min', T='20°C'),
@@ -442,7 +462,7 @@ class TestDataFrameWriteCSV:
             )
         )
         df.attrs.update(
-            dict(
+            **dict(
                 date='2024-04-27',
                 trial=3,
                 inlet=dict(flow_rate='1.0L/min', T='20°C'),
@@ -479,7 +499,7 @@ class TestDataFrameWriteCSV:
             )
         )
         df.attrs.update(
-            dict(
+            **dict(
                 date='2024-04-27',
                 trial=3,
                 inlet=dict(flow_rate='1.0L/min', T='20^C'),

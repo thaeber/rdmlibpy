@@ -26,6 +26,8 @@ class DataFrameReadCSVBase(Loader):
     concatenate: bool = True
     date_format: str = 'ISO8601'
     parse_dates: ParseDatesType = None
+    encoding: str = 'utf-8'
+    thousands: Optional[str] = None
 
     def run(self, source: FilePath | ReadCsvBuffer, **kwargs):
         if isinstance(source, FilePath):
@@ -54,7 +56,11 @@ class DataFrameReadCSVBase(Loader):
 
         # merge process configuration with runtime keyword arguments
         options = dict(
-            sep=self.separator, decimal=self.decimal, encoding='utf-8', **self.options
+            sep=self.separator,
+            decimal=self.decimal,
+            encoding=self.encoding,
+            thousands=self.thousands,
+            **self.options,
         )
         options |= kwargs
 
