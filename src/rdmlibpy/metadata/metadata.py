@@ -119,7 +119,7 @@ class MetadataNode:
         return self._get_impl(key)
 
     def __repr__(self):
-        return repr(self._container)
+        return repr(OmegaConf.to_container(self._container, resolve=True))
 
     def __getitem__(self, key: str):
         return self._get_impl(key)
