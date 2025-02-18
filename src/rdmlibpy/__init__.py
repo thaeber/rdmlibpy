@@ -1,5 +1,5 @@
 # set package version
-__version__ = '0.2.9'
+__version__ = '0.2.10'
 
 
 from . import dataframes, loaders, metadata, serializers, xarrays

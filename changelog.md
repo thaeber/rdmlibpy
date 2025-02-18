@@ -1,4 +1,12 @@
 <!-- insertion marker -->
+<a name="v0.2.10"></a>
+
+## [v0.2.10](https://github.com/thaeber/rdmlibpy/compare/v0.2.9...v0.2.10) (2025-02-18)
+
+### Features
+
+- Optionally only open a `xarray.Dataset` when loading from cache and to provide a `chunks` size ([7338b2e](https://github.com/thaeber/rdmlibpy/commit/7338b2ead3f2ecca653d8c7b7f8ce349364bc6e7))
+
 <a name="v0.2.9"></a>
 
 ## [v0.2.9](https://github.com/thaeber/rdmlibpy/compare/v0.2.8...v0.2.9) (2025-02-18)
