@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Literal
 
 import pint_xarray
 from rdmlibpy.metadata.flattery import flatten, rebuild
@@ -22,11 +22,16 @@ class XArrayFileCache(Cache):
 
     flatten_attributes: bool = True
     flatten_separator: str = ':::'
+    chunks: None | str = None
+    read_method: Literal['load', 'open'] = 'load'
 
     def read(self, filename: FilePath, rebuild: bool = False, **kwargs):
         # load data from netCDF4 file
         # cached = xr.load_dataset(filename, engine='netcdf4')
-        cached = xr.load_dataset(filename, engine='h5netcdf')
+        if self.read_method == 'load':
+            cached = xr.load_dataset(filename, engine='h5netcdf', chunks=self.chunks)
+        else:
+            cached = xr.open_dataset(filename, engine='h5netcdf', chunks=self.chunks)
 
         # rebuild nested dicts in attrs
         if self.flatten_attributes:
