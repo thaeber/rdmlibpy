@@ -79,3 +79,19 @@ class MetadataQuery:
 
 def query(node: MetadataNode, *, include_private_keys=False):
     return MetadataQuery(node, include_private_keys=include_private_keys)
+
+
+def find(
+    node: MetadataNode,
+    *,
+    predicate: Callable[[MetadataNode], bool] = lambda _: True,
+    include_self=True,
+    recursive=True
+):
+    yield from MetadataQuery(node).find(
+        predicate, include_self=include_self, recursive=recursive
+    )
+
+
+def defines(node: MetadataNode, keys: str | Sequence[str]):
+    return MetadataQuery(node).defines(keys)
