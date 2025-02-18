@@ -1,4 +1,16 @@
 <!-- insertion marker -->
+<a name="v0.2.9"></a>
+
+## [v0.2.9](https://github.com/thaeber/rdmlibpy/compare/v0.2.8...v0.2.9) (2025-02-18)
+
+### Bug Fixes
+
+- __repr__ will now resolve interpolations for better inspection ([2d6ad18](https://github.com/thaeber/rdmlibpy/commit/2d6ad181274205da188c0fd55202d2fcd8dafab6))
+
+### Features
+
+- Add convenient top level query functions `find` and `defines` ([b14b258](https://github.com/thaeber/rdmlibpy/commit/b14b258acc7d53e99deb0b445058533a8377d0b4))
+
 <a name="v0.2.8"></a>
 
 ## [v0.2.8](https://github.com/thaeber/rdmlibpy/compare/v0.2.7...v0.2.8) (2025-02-11)
@@ -10,6 +22,10 @@
 ### Features
 
 - Coerce invalid date/time values to NaT ([3890e1f](https://github.com/thaeber/rdmlibpy/commit/3890e1f0ffae59a14e21c164abf2d4b5cc253eac))
+
+### Chore
+
+- git-changelog -B patch ([a541ad7](https://github.com/thaeber/rdmlibpy/commit/a541ad7fbfae52018fba389eaeb310368a37c33f))
 
 <a name="v0.2.7"></a>
 
