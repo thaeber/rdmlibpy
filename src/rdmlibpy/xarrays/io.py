@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Literal
 
+import numpy as np
 import pint_xarray
 from rdmlibpy.metadata.flattery import flatten, rebuild
 import xarray as xr
@@ -85,9 +86,24 @@ class XArrayFileCache(Cache):
         # create path (if necessary)
         self.ensure_path(filename)
 
+        # in case of chunked arrays we need to specify the time
+        # encoding, otherwise the time will be incorrectly stored
+        encoding = {}
+        for name in ds.data_vars:
+            if np.isdtype(ds[name].dtype, np.datetime64):
+                encoding[name] = dict(
+                    units='milliseconds since 1970-01-01 00:00:00',
+                    dtype='int64',
+                )
+        for name in ds.coords:
+            if np.isdtype(ds[name].dtype, np.datetime64):
+                encoding[name] = dict(
+                    units='milliseconds since 1970-01-01 00:00:00',
+                    dtype='int64',
+                )
+
         # write data to netCDF4 file
-        # ds.to_netcdf(filename, format='NETCDF4', engine='netcdf4')
-        ds.to_netcdf(filename, engine='h5netcdf')
+        ds.to_netcdf(filename, engine='h5netcdf', encoding=encoding)
 
     def cache_is_valid(self, filename: FilePath, rebuild: bool = False):
         if rebuild:

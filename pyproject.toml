@@ -23,6 +23,7 @@ xarray = ">=2024.10.0"
 pint-xarray = ">=0.4"
 netcdf4 = ">=1.7"
 h5netcdf = ">=1.4"
+dask = ">=2025.2"
 
 
 [tool.poetry.group.dev.dependencies]

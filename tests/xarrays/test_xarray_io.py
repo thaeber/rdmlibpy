@@ -31,12 +31,55 @@ class TestXArrayFileCache:
                             '2024-01-16T10:05:28.537',
                             '2024-01-16T10:05:29.735',
                             '2024-01-16T10:05:30.935',
-                        ]
-                    ),
+                        ],
+                    ).astype('datetime64[us]'),
                 ),
             ),
             coords=dict(x=[3, 4, 5]),
         )
+
+        workflow = ProcessNode(
+            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
+            XArrayFileCache(),
+            {'filename': PlainProcessParam(str(path))},
+        )
+
+        # verify cache does not exists yet
+        assert not path.exists()
+
+        # write to cache
+        returned = workflow.run()
+
+        # check that workflow returned original data
+        assert source is returned
+
+        # check cache exists
+        assert path.exists()
+
+        # check written data
+        cached = xr.load_dataset(path)
+        xarray.testing.assert_identical(source, cached)
+
+    def test_write_to_cache_with_chunks(self, tmp_path):
+        path = tmp_path / 'cache.nc'
+        source = xr.Dataset(
+            dict(
+                A=('x', [1.1, 2.2, 3.3]),
+                B=('x', ['aa', 'bb', 'cc']),
+                C=(
+                    'x',
+                    pd.to_datetime(
+                        [
+                            '2024-01-16T10:05:28.537',
+                            '2024-01-16T10:05:29.735',
+                            '2024-01-16T10:05:30.935',
+                        ],
+                    ).astype('datetime64[us]'),
+                ),
+            ),
+            coords=dict(x=[3, 4, 5]),
+        )
+        source = source.chunk(chunks='auto')
 
         workflow = ProcessNode(
             ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
@@ -151,6 +194,48 @@ class TestXArrayFileCache:
                 )
             ),
         )
+
+        workflow = ProcessNode(
+            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
+            XArrayFileCache(),
+            {
+                'filename': PlainProcessParam(str(path)),
+            },
+        )
+
+        # create cache
+        assert not path.exists()
+        cached = workflow.run()
+
+        # modify dataframe and load from cache
+        original_source = source.copy(deep=True)
+        source['E'] = [1, 2, 3]
+        cached = workflow.run()
+
+        # check returned data is a different object instance
+        assert source is not cached
+
+        # check data integrity
+        xarray.testing.assert_identical(original_source, cached)
+
+    def test_dataset_with_datetime_index_and_chunked_array(self, tmp_path):
+        path = tmp_path / 'cache.nc'
+        source = xr.Dataset(
+            dict(
+                A=('t', [1.1, 2.2, 3.3]),
+                B=('t', ['aa', 'bb', 'cc']),
+            ),
+            coords=dict(
+                t=pd.to_datetime(
+                    [
+                        '2024-01-16T10:05:28.537',
+                        '2024-01-16T10:05:29.735',
+                        '2024-01-16T10:05:30.935',
+                    ]
+                )
+            ),
+        )
+        source = source.chunk(chunks='auto')
 
         workflow = ProcessNode(
             ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
