@@ -4,6 +4,7 @@ from typing import Dict, List, Literal
 
 import numpy as np
 import pint_xarray
+import pydantic
 from rdmlibpy.metadata.flattery import flatten, rebuild
 import xarray as xr
 
@@ -17,6 +18,22 @@ ParseDatesType = None | List[str] | Dict[str, List[str]]
 _ = pint_xarray.unit_registry
 
 
+class TimeEncoding(pydantic.BaseModel):
+    units: str = 'milliseconds since 1970-01-01 00:00:00'
+    dtype: str = 'int64'
+    calendar: Literal[
+        'standard',
+        'gregorian',
+        'proleptic_gregorian',
+        'noleap',
+        '365_day',
+        '360_day',
+        'julian',
+        'all_leap',
+        '366_day',
+    ] = 'proleptic_gregorian'
+
+
 class XArrayFileCache(Cache):
     name: str = 'xarray.cache'
     version: str = '1'
@@ -25,6 +42,7 @@ class XArrayFileCache(Cache):
     flatten_separator: str = ':::'
     chunks: None | str = None
     read_method: Literal['load', 'open'] = 'load'
+    time_encoding: TimeEncoding = TimeEncoding()
 
     def read(self, filename: FilePath, rebuild: bool = False, **kwargs):
         # load data from netCDF4 file
@@ -89,18 +107,10 @@ class XArrayFileCache(Cache):
         # in case of chunked arrays we need to specify the time
         # encoding, otherwise the time will be incorrectly stored
         encoding = {}
-        for name in ds.data_vars:
+        names = list(ds.data_vars) + list(ds.coords)
+        for name in names:
             if np.isdtype(ds[name].dtype, np.datetime64):
-                encoding[name] = dict(
-                    units='milliseconds since 1970-01-01 00:00:00',
-                    dtype='int64',
-                )
-        for name in ds.coords:
-            if np.isdtype(ds[name].dtype, np.datetime64):
-                encoding[name] = dict(
-                    units='milliseconds since 1970-01-01 00:00:00',
-                    dtype='int64',
-                )
+                encoding[name] = self.time_encoding.model_dump()
 
         # write data to netCDF4 file
         ds.to_netcdf(filename, engine='h5netcdf', encoding=encoding)
