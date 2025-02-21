@@ -63,6 +63,8 @@ class MetadataNode:
             return item
 
     def _try_get_item(self, key: str | int):
+        if isinstance(self._container, Sequence) and not isinstance(key, int):
+            return None
         try:
             return self._container[key]
         except KeyError:
