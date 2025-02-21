@@ -1,4 +1,12 @@
 <!-- insertion marker -->
+<a name="v0.2.14"></a>
+
+## [v0.2.14](https://github.com/thaeber/rdmlibpy/compare/v0.2.13...v0.2.14) (2025-02-21)
+
+### Bug Fixes
+
+- Avoid passing indexers of type `str` to sequence containers ([4c4e94d](https://github.com/thaeber/rdmlibpy/commit/4c4e94d14e8c389e2f93789ab8698730ecb78386))
+
 <a name="v0.2.13"></a>
 
 ## [v0.2.13](https://github.com/thaeber/rdmlibpy/compare/v0.2.12...v0.2.13) (2025-02-21)
