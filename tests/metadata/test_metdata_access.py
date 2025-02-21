@@ -168,10 +168,10 @@ class TestAccessors:
             ),
         )
 
-        with pytest.raises(KeyError):
+        with pytest.raises(AttributeError):
             _ = sample_data.data['dummy']
 
-        with pytest.raises(KeyError):
+        with pytest.raises(AttributeError):
             _ = sample_data['dummy']
 
 

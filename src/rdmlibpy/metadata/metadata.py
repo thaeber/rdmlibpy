@@ -100,8 +100,9 @@ class MetadataNode:
             try:
                 item = next(items)
             except StopIteration:
-                # there is no key with that name/value, just return None
-                raise KeyError(f'No item matches the given key: {key}')
+                # there is no key/attribute with the given name
+                # -> raise an AttributeError
+                raise AttributeError(f'No attribute matches the given key/name: {key}')
         else:
             # handle merging
             raise NotImplementedError(
