@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Dict, List, Literal
 
 import numpy as np
+import pint
 import pint_xarray
 import pydantic
 from rdmlibpy.metadata.flattery import flatten, rebuild
@@ -57,7 +58,9 @@ class XArrayFileCache(Cache):
             cached = self._rebuild_attributes(cached)
 
         # convert to pint units, if present
-        cached = cached.pint.quantify()
+        if cached.attrs.get('pint:quantify', 0) == 1:
+            cached = cached.pint.quantify()
+            del cached.attrs['pint:quantify']
 
         # check if data was actually a DataArray
         if name := cached.attrs.get('xarray:name', None):
@@ -94,8 +97,19 @@ class XArrayFileCache(Cache):
             ds = source
         assert isinstance(ds, xr.Dataset)
 
-        # promote units to attributes
-        ds = ds.pint.dequantify()
+        # check if dataset has any pint units or dimensions associated with it
+        if any(
+            [ds[key].pint.dimensionality is not None for key in list(ds.data_vars)]
+            + [
+                isinstance(ds[key].attrs.get('units', None), pint.Unit)
+                for key in list(ds.coords)
+            ]
+        ):
+            # promote units to attributes
+            ds = ds.pint.dequantify()
+            ds.attrs['pint:quantify'] = 1
+        else:
+            ds.attrs['pint:quantify'] = 0
 
         # flatten nested dicts in attrs
         if self.flatten_attributes:
