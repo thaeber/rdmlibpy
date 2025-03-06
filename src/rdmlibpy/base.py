@@ -19,7 +19,7 @@ class ProcessBase(pydantic.BaseModel, abc.ABC):
     def run(self, source, **kwargs) -> Any:
         pass
 
-    def _run(self, node: ProcessNode):
+    def _run_with_node(self, node: ProcessNode):
         # resolve parameters;
         # each parameter, which itself represents an executable node, is
         # evaluated before the process of the current node instance is executed.
@@ -54,7 +54,7 @@ class ProcessNode:
         self.params = params
 
     def run(self):
-        return self.runner._run(self)
+        return self.runner._run_with_node(self)
 
     def get_param(self, key: str, default=None):
         if default is None:

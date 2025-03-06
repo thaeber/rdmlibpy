@@ -89,7 +89,7 @@ class Cache(Writer):
         # return source unaltered
         return source
 
-    def _run(self, node: ProcessNode):
+    def _run_with_node(self, node: ProcessNode):
         # get parameters
         params = node.get_params()
 
@@ -99,7 +99,7 @@ class Cache(Writer):
             return self.read(**params)
         else:
             # run process normally (and save value to cache)
-            return super()._run(node)
+            return super()._run_with_node(node)
 
     @abc.abstractmethod
     def read(self, **kwargs):
