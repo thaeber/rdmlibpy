@@ -1,4 +1,21 @@
 <!-- insertion marker -->
+
+<a name="v0.2.15"></a>
+
+## [v0.2.15](https://github.com/thaeber/rdmlibpy/compare/v0.2.14...v0.2.15) (2025-03-06)
+
+### Bug Fixes
+
+- Avoid `pint.quantify`on cache read when no pint units present ([a3ccbf2](https://github.com/thaeber/rdmlibpy/commit/a3ccbf2814907dfe32971d412675837a302b7a5c))
+
+### Features
+
+- Calling `Cache.run` writes and returns cached value without being part of a process workflow ([c461f0f](https://github.com/thaeber/rdmlibpy/commit/c461f0ff780d9126740f8d330cd8367ea28e09bd))
+
+### Code Refactoring
+
+- Renamed `_run` to `_run_with_node` ([a267a2e](https://github.com/thaeber/rdmlibpy/commit/a267a2eaa50e7e95ccfd6ee1d176d6c160203f51))
+
 <a name="v0.2.14"></a>
 
 ## [v0.2.14](https://github.com/thaeber/rdmlibpy/compare/v0.2.13...v0.2.14) (2025-02-21)
@@ -248,7 +265,7 @@
 - Renamed "target" parameter to "filename" ([33d31e3](https://github.com/thaeber/rdmlibpy/commit/33d31e3011b78ab4999d8e7d21d781e2cc0840c3))
 - Test for process id ([41203c0](https://github.com/thaeber/rdmlibpy/commit/41203c0169b2a6ce3ddf4a2c092b0566b29ed58c))
 - Fixed typo in "dataframe.cache" process id (#9) ([f6acb32](https://github.com/thaeber/rdmlibpy/commit/f6acb32ef7c1026d6a1f4c0f956605ec1fc72d64))
-- Renamed process to "dataframe.[read|write].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
+- Renamed process to "dataframe.\[read|write\].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
 - DataFrameWriteCSV.run() did not return input value (#7) ([a297aa0](https://github.com/thaeber/rdmlibpy/commit/a297aa03a556fca1684b20fc2cda6c26855834cd))
 
 ### Features
@@ -301,7 +318,7 @@
 
 ### Style
 
-- Renamed "select.[columns|timespan]" to "dataframe.select.[columns|timespan]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
+- Renamed "select.\[columns|timespan\]" to "dataframe.select.\[columns|timespan\]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
 
 <a name="v0.1.3"></a>
 
@@ -314,4 +331,3 @@
 <a name="v0.1.1"></a>
 
 ## [v0.1.1](https://github.com/thaeber/rdmlibpy/compare/b6e05adfa1b72a75295601854b5caaedc1876993...v0.1.1) (2024-04-01)
-
