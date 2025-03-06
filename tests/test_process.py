@@ -181,3 +181,32 @@ class TestCache:
         assert workflow.run() == 3
         assert MySource.counter == 3
         assert MyCache.cached == 3
+
+    def test_execute_cache_from_code(self):
+        class MyCache(Cache):
+            name: str = 'my_cache'
+            version: str = '1'
+            cached: ClassVar[None | int] = None
+
+            def cache_is_valid(self):
+                return MyCache.cached is not None
+
+            def write(self, source: int):
+                MyCache.cached = source
+
+            def read(self):
+                return MyCache.cached
+
+        workflow = MyCache()
+
+        # 1st run
+        assert MyCache.cached is None
+        assert workflow.run(1) == 1
+
+        # 2nd run
+        assert workflow.run(2) == 1
+        assert MyCache.cached == 1
+
+        # 3rd run
+        assert workflow.run(3) == 1
+        assert MyCache.cached == 1

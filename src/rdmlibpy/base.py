@@ -16,7 +16,7 @@ class ProcessBase(pydantic.BaseModel, abc.ABC):
         return self.model_validate(_config)
 
     @abc.abstractmethod
-    def run(self, source, **kwargs) -> Any:
+    def run(self, source, **params) -> Any:
         pass
 
     def _run_with_node(self, node: ProcessNode):

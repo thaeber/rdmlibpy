@@ -82,12 +82,17 @@ class Transform(ProcessBase):
 
 
 class Cache(Writer):
-    def run(self, source, **kwargs):
-        # write source to cache
-        self.write(source, **kwargs)
+    def run(self, source, **params):
+        # check if cache is valid
+        if self.cache_is_valid(**params):
+            # return cached value
+            return self.read(**params)
+        else:
+            # write source to cache
+            self.write(source, **params)
 
-        # return source unaltered
-        return source
+            # return source unaltered
+            return source
 
     def _run_with_node(self, node: ProcessNode):
         # get parameters
