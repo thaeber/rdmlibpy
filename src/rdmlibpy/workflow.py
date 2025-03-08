@@ -72,13 +72,13 @@ class Workflow:
                 if key.startswith('$'):
                     # value itself is a process
                     params[key[1:]] = base.RunnableProcessParam(
-                        Workflow.create(value).process
+                        node=Workflow.create(value).process
                     )
                 else:
-                    params[key] = base.PlainProcessParam(value)
+                    params[key] = base.PlainProcessParam(value=value)
 
         # invoke process
-        return base.ProcessNode(parent, runner, params)
+        return base.ProcessNode(parent=parent, runner=runner, params=params)
 
     @staticmethod
     def _create_sequence(

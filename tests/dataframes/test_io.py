@@ -596,9 +596,9 @@ class TestDataFrameFileCache:
         )
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: df), {}),
-            DataFrameFileCache(),
-            {'filename': PlainProcessParam(str(path))},
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: df)),
+            runner=DataFrameFileCache(),
+            params={'filename': PlainProcessParam(value=str(path))},
         )
 
         # verify cache does not exists yet
@@ -633,9 +633,9 @@ class TestDataFrameFileCache:
         df.pint.dequantify().to_hdf(path, key='data')
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: df), {}),
-            DataFrameFileCache(),
-            {'filename': PlainProcessParam(str(path))},
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: df)),
+            runner=DataFrameFileCache(),
+            params={'filename': PlainProcessParam(value=str(path))},
         )
 
         cached = workflow.run()
@@ -663,11 +663,11 @@ class TestDataFrameFileCache:
 
         df['D'] = ['R1', 'R2', 'R3']
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: df), {}),
-            DataFrameFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
-                'rebuild': PlainProcessParam(True),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: df)),
+            runner=DataFrameFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
+                'rebuild': PlainProcessParam(value=True),
             },
         )
 
@@ -696,10 +696,10 @@ class TestDataFrameFileCache:
         df.set_index('D', inplace=True)
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: df), {}),
-            DataFrameFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: df)),
+            runner=DataFrameFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
@@ -735,10 +735,10 @@ class TestDataFrameFileCache:
         df.set_index('C', inplace=True)
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: df), {}),
-            DataFrameFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: df)),
+            runner=DataFrameFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
@@ -775,10 +775,10 @@ class TestDataFrameFileCache:
         original = df.copy(deep=True)
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: df), {}),
-            DataFrameFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: df)),
+            runner=DataFrameFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
@@ -807,14 +807,17 @@ class TestDataFrameFileCache:
             ),
         )
         df.attrs.update(
-            dict(date='2024-04-26', inlet=dict(flow_rate='1.0L/min', scale=2.0))
-        )
+            dict(
+                date='2024-04-26',
+                inlet=dict(flow_rate='1.0L/min', scale=2.0),
+            )  # type: ignore
+        )  # type: ignore
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: df), {}),
-            DataFrameFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: df)),
+            runner=DataFrameFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 

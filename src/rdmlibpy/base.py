@@ -42,16 +42,20 @@ class ProcessBase(pydantic.BaseModel, abc.ABC):
         return f'{self.name}@v{self.version}'
 
 
-class ProcessNode:
-    def __init__(
-        self,
-        parent: Optional[ProcessNode],
-        runner: ProcessBase,
-        params: Dict[str, ProcessParam],
-    ):
-        self.parent = parent
-        self.runner = runner
-        self.params = params
+class ProcessNode(pydantic.BaseModel):
+    runner: ProcessBase
+    parent: Optional[ProcessNode] = None
+    params: Dict[str, ProcessParam] = {}
+
+    # def __init__(
+    #     self,
+    #     parent: Optional[ProcessNode],
+    #     runner: ProcessBase,
+    #     params: Dict[str, ProcessParam],
+    # ):
+    #     self.parent = parent
+    #     self.runner = runner
+    #     self.params = params
 
     def run(self):
         return self.runner._run_with_node(self)
@@ -72,22 +76,21 @@ class ProcessNode:
         return {key: item.get_value() for key, item in self.params.items()}
 
 
-class ProcessParam:
+class ProcessParam(pydantic.BaseModel, abc.ABC):
+    @abc.abstractmethod
     def get_value(self):
         raise NotImplementedError()
 
 
 class PlainProcessParam(ProcessParam):
-    def __init__(self, value: Any):
-        self.value = value
+    value: Any
 
     def get_value(self):
         return self.value
 
 
-class RunnableProcessParam:
-    def __init__(self, node: ProcessNode):
-        self.node = node
+class RunnableProcessParam(ProcessParam):
+    node: ProcessNode
 
     def get_value(self):
         return self.node.run()
