@@ -117,9 +117,8 @@ class TestCache:
                 return MyCache.cached
 
         workflow = ProcessNode(
-            ProcessNode(None, MySource(), {}),
-            MyCache(),
-            {},
+            parent=ProcessNode(runner=MySource()),
+            runner=MyCache(),
         )
 
         # 1st run
@@ -163,9 +162,8 @@ class TestCache:
                 return MyCache.cached
 
         workflow = ProcessNode(
-            ProcessNode(None, MySource(), {}),
-            MyCache(),
-            {},
+            parent=ProcessNode(runner=MySource()),
+            runner=MyCache(),
         )
 
         # 1st run

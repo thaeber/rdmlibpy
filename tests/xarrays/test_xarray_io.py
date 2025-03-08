@@ -39,9 +39,9 @@ class TestXArrayFileCache:
         )
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {'filename': PlainProcessParam(str(path))},
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={'filename': PlainProcessParam(value=str(path))},
         )
 
         # verify cache does not exists yet
@@ -82,9 +82,9 @@ class TestXArrayFileCache:
         source = source.chunk(chunks='auto')
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {'filename': PlainProcessParam(str(path))},
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={'filename': PlainProcessParam(value=str(path))},
         )
 
         # verify cache does not exists yet
@@ -125,9 +125,9 @@ class TestXArrayFileCache:
         source.to_netcdf(path)
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {'filename': PlainProcessParam(str(path))},
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={'filename': PlainProcessParam(value=str(path))},
         )
 
         cached = workflow.run()
@@ -161,11 +161,11 @@ class TestXArrayFileCache:
 
         source['D'] = ['R1', 'R2', 'R3']
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
-                'rebuild': PlainProcessParam(True),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
+                'rebuild': PlainProcessParam(value=True),
             },
         )
 
@@ -196,10 +196,10 @@ class TestXArrayFileCache:
         )
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
@@ -238,10 +238,10 @@ class TestXArrayFileCache:
         source = source.chunk(chunks='auto')
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
@@ -283,10 +283,10 @@ class TestXArrayFileCache:
         original = source.copy(deep=True)
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
@@ -339,10 +339,10 @@ class TestXArrayFileCache:
         )
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
@@ -390,10 +390,10 @@ class TestXArrayFileCache:
         )
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
@@ -440,10 +440,10 @@ class TestXArrayFileCache:
         )
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
@@ -478,10 +478,10 @@ class TestXArrayFileCache:
         )
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
@@ -518,10 +518,10 @@ class TestXArrayFileCache:
         )
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
@@ -595,10 +595,10 @@ class TestXArrayFileCache:
         )
 
         workflow = ProcessNode(
-            ProcessNode(None, DelegatedSource(delegate=lambda: source), {}),
-            XArrayFileCache(),
-            {
-                'filename': PlainProcessParam(str(path)),
+            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+            runner=XArrayFileCache(),
+            params={
+                'filename': PlainProcessParam(value=str(path)),
             },
         )
 
