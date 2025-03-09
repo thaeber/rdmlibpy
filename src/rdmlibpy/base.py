@@ -19,19 +19,22 @@ class ProcessBase(pydantic.BaseModel, abc.ABC):
     def run(self, source, **params) -> Any:
         pass
 
-    def _run_with_node(self, node: ProcessNode):
+    def _run_with_node(self, node: ProcessNode, **kwargs):
         # resolve parameters;
         # each parameter, which itself represents an executable node, is
         # evaluated before the process of the current node instance is executed.
-        params = node.get_params()
+        # params = node.get_params()
 
         if node.parent is not None:
             # run parent process
-            source = node.parent.run()
+            source = node.parent.run(**kwargs)
 
             # run process & return result
+            params = node.get_params()
             return self.run(source, **params)
         else:
+            params = node.get_params()
+            params.update(**kwargs)
             return self.run(**params)
 
     def preprocess(self):
@@ -47,18 +50,19 @@ class ProcessNode(pydantic.BaseModel):
     parent: Optional[ProcessNode] = None
     params: Dict[str, ProcessParam] = {}
 
-    # def __init__(
-    #     self,
-    #     parent: Optional[ProcessNode],
-    #     runner: ProcessBase,
-    #     params: Dict[str, ProcessParam],
-    # ):
-    #     self.parent = parent
-    #     self.runner = runner
-    #     self.params = params
+    @pydantic.field_validator('params', mode='before')
+    @classmethod
+    def validate_node_params(cls, params: dict) -> Dict[str, ProcessParam]:
+        result: Dict[str, ProcessParam] = {}
+        for key, value in params.items():
+            if not isinstance(value, ProcessParam):
+                result[key] = PlainProcessParam(value=value)
+            else:
+                result[key] = value
+        return result
 
-    def run(self):
-        return self.runner._run_with_node(self)
+    def run(self, **kwargs):
+        return self.runner._run_with_node(self, **kwargs)
 
     def get_param(self, key: str, default=None):
         if default is None:

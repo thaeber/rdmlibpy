@@ -1,13 +1,20 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Any, Dict, Mapping, Optional, Sequence, cast
+from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, cast
 
 from . import base
 from .registry import get_runner
 from .metadata import MetadataNode, Metadata
 
-ProcessDescriptorType = Mapping[str, Any] | MetadataNode
+PlainProcessDescriptorType = str | base.ProcessBase
+PlainProcessWithParamsDescriptorType = Tuple[PlainProcessDescriptorType, Dict[str, Any]]
+ProcessDescriptorType = (
+    Mapping[str, Any]
+    | MetadataNode
+    | PlainProcessWithParamsDescriptorType
+    | PlainProcessDescriptorType
+)
 WorkflowDescriptorType = ProcessDescriptorType | Sequence['WorkflowDescriptorType']
 
 
@@ -19,8 +26,8 @@ class Workflow:
     def __init__(self, process: base.ProcessNode):
         self.process = process
 
-    def run(self):
-        return self.process.run()
+    def run(self, **kwargs):
+        return self.process.run(**kwargs)
 
     @staticmethod
     def create(descriptor: WorkflowDescriptorType):
@@ -33,19 +40,51 @@ class Workflow:
         parent: Optional[base.ProcessNode], descriptor: WorkflowDescriptorType
     ) -> base.ProcessNode:
         match descriptor:
+            case base.ProcessBase() as process:
+                return base.ProcessNode(parent=parent, runner=process)
+            case str() as process_name:
+                process = get_runner(process_name)
+                return base.ProcessNode(parent=parent, runner=process)
+            case (base.ProcessBase() as process, dict() as params):
+                return base.ProcessNode(
+                    parent=parent,
+                    runner=process,
+                    params=Workflow._create_params(**params),
+                )
+            case (str() as process_name, dict() as params):
+                process = get_runner(process_name)
+                return base.ProcessNode(
+                    parent=parent,
+                    runner=process,
+                    params=Workflow._create_params(**params),
+                )
             case {**mapping}:
-                return Workflow._create_process(parent, mapping)
+                return Workflow._create_process_from_mapping(parent, mapping)
             case [*sequence]:
                 return Workflow._create_sequence(parent, sequence)
             case _:
                 raise ValueError(
-                    'The workflow descriptor must be either a mapping '
-                    + 'or a sequence of mappings.'
+                    'The workflow descriptor must be either a mapping,'
+                    ' a process instance, process name (with version)'
+                    + ' or a sequence of these.'
                 )
 
     @staticmethod
-    def _create_process(
-        parent: Optional[base.ProcessNode], process: ProcessDescriptorType
+    def _create_params(**kwargs) -> Dict[str, base.ProcessParam]:
+        params = {}
+        for key, value in kwargs.items():
+            if key.startswith('$'):
+                # value itself is a process
+                params[key[1:]] = base.RunnableProcessParam(
+                    node=Workflow.create(value).process
+                )
+            else:
+                params[key] = base.PlainProcessParam(value=value)
+        return params
+
+    @staticmethod
+    def _create_process_from_mapping(
+        parent: Optional[base.ProcessNode], process: Mapping[str, Any]
     ) -> base.ProcessNode:
         # create a single process node from the descriptor (mapping)
         RUN_KEY = 'run'
@@ -66,16 +105,9 @@ class Workflow:
         runner = get_runner(process[RUN_KEY], **process.get(CONFIG_KEY, dict()))
 
         # get keyword arguments (anything except reserved keys)
-        params: Dict[str, Any] = {}
+        params = {}
         if PARAMS_KEY in process:
-            for key, value in process[PARAMS_KEY].items():
-                if key.startswith('$'):
-                    # value itself is a process
-                    params[key[1:]] = base.RunnableProcessParam(
-                        node=Workflow.create(value).process
-                    )
-                else:
-                    params[key] = base.PlainProcessParam(value=value)
+            params = Workflow._create_params(**process[PARAMS_KEY])
 
         # invoke process
         return base.ProcessNode(parent=parent, runner=runner, params=params)
