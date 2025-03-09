@@ -1,5 +1,21 @@
 <!-- insertion marker -->
 
+<a name="v0.2.16"></a>
+
+## [v0.2.16](https://github.com/thaeber/rdmlibpy/compare/v0.2.15...v0.2.16) (2025-03-09)
+
+### Features
+
+- Create workflow from sequence of process instances ([9a1f4ea](https://github.com/thaeber/rdmlibpy/commit/9a1f4ea61b182c42441ad676d56ea4160c603c48))
+
+### Code Refactoring
+
+- Derive `ProcessNode` and `ProcessParam` from `pydantic.BaseModel` (#26) ([4014fbc](https://github.com/thaeber/rdmlibpy/commit/4014fbc30c5a778c7282bb7f2df71067e1334ca8))
+
+### Chore
+
+- pre-commit run --all ([5fe1ac2](https://github.com/thaeber/rdmlibpy/commit/5fe1ac24c60bed05d7f505a5c4dea80e260b04ba))
+
 <a name="v0.2.15"></a>
 
 ## [v0.2.15](https://github.com/thaeber/rdmlibpy/compare/v0.2.14...v0.2.15) (2025-03-06)
