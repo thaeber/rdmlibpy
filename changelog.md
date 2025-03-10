@@ -1,5 +1,13 @@
 <!-- insertion marker -->
 
+<a name="v0.2.17"></a>
+
+## [v0.2.17](https://github.com/thaeber/rdmlibpy/compare/v0.2.16...v0.2.17) (2025-03-10)
+
+### Features
+
+- File cache for `xarray.DataTree` ([b498bf5](https://github.com/thaeber/rdmlibpy/commit/b498bf5c7714d7a218c118c30a77b25a1421692a))
+
 <a name="v0.2.16"></a>
 
 ## [v0.2.16](https://github.com/thaeber/rdmlibpy/compare/v0.2.15...v0.2.16) (2025-03-09)
