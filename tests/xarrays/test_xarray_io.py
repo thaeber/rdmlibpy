@@ -7,6 +7,7 @@ import xarray.testing
 from rdmlibpy.base import PlainProcessParam, ProcessNode
 from rdmlibpy.process import DelegatedSource
 from rdmlibpy.xarrays import XArrayFileCache
+import rdmlibpy as rdm
 
 _ = pint_xarray.unit_registry
 
@@ -461,87 +462,6 @@ class TestXArrayFileCache:
         # assert content
         assert source.attrs == cached.attrs
 
-    def test_cache_data_array(self, tmp_path):
-        path = tmp_path / 'cache.h5'
-        source = xr.DataArray(
-            [1.1, 2.2, 3.3],
-            coords=dict(x=[3, 4, 5]),
-            name='A',
-        )
-        source = source.pint.quantify(x='s', A='m')
-        source.attrs.update(
-            {
-                'date': '2024-04-26',
-                'inlet.flow_rate': '1.0L/min',
-                'inlet.scale': 2.0,
-            }
-        )
-
-        workflow = ProcessNode(
-            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
-            runner=XArrayFileCache(),
-            params={
-                'filename': PlainProcessParam(value=str(path)),
-            },
-        )
-
-        # create cache
-        assert not path.exists()
-        workflow.run()
-
-        # load cached version (by running process again)
-        cached = workflow.run()
-        assert cached is not source
-
-        # check data integrity
-        xarray.testing.assert_identical(source, cached)
-
-        # assert content
-        assert source.attrs == cached.attrs
-
-        # assert name
-        assert source.name == cached.name
-
-    def test_cache_unnamed_data_array(self, tmp_path):
-        path = tmp_path / 'cache.h5'
-        source = xr.DataArray(
-            [1.1, 2.2, 3.3],
-            coords=dict(x=[3, 4, 5]),
-        )
-        source = source.pint.quantify(x='s', A='m')
-        source.attrs.update(
-            {
-                'date': '2024-04-26',
-                'inlet.flow_rate': '1.0L/min',
-                'inlet.scale': 2.0,
-            }
-        )
-
-        workflow = ProcessNode(
-            parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
-            runner=XArrayFileCache(),
-            params={
-                'filename': PlainProcessParam(value=str(path)),
-            },
-        )
-
-        # create cache
-        assert not path.exists()
-        workflow.run()
-
-        # load cached version (by running process again)
-        cached = workflow.run()
-        assert cached is not source
-
-        # check data integrity
-        xarray.testing.assert_identical(source, cached)
-
-        # assert content
-        assert source.attrs == cached.attrs
-
-        # assert name
-        assert source.name == cached.name
-
     def test_preserve_nested_dicts_in_attrs(self, tmp_path):
         path = tmp_path / 'cache.h5'
         source = xr.Dataset(
@@ -615,3 +535,208 @@ class TestXArrayFileCache:
 
         # assert content
         assert source.attrs == cached.attrs
+
+    class TestDataArray:
+        def test_cache_data_array(self, tmp_path):
+            path = tmp_path / 'cache.h5'
+            source = xr.DataArray(
+                [1.1, 2.2, 3.3],
+                coords=dict(x=[3, 4, 5]),
+                name='A',
+            )
+            source = source.pint.quantify(x='s', A='m')
+            source.attrs.update(
+                {
+                    'date': '2024-04-26',
+                    'inlet.flow_rate': '1.0L/min',
+                    'inlet.scale': 2.0,
+                }
+            )
+
+            workflow = ProcessNode(
+                parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+                runner=XArrayFileCache(data_structure='DataArray'),
+                params={
+                    'filename': PlainProcessParam(value=str(path)),
+                },
+            )
+
+            # create cache
+            assert not path.exists()
+            workflow.run()
+
+            # load cached version (by running process again)
+            cached = workflow.run()
+            assert cached is not source
+
+            # check data integrity
+            xarray.testing.assert_identical(source, cached)
+
+            # assert content
+            assert source.attrs == cached.attrs
+
+            # assert name
+            assert source.name == cached.name
+
+        def test_cache_unnamed_data_array(self, tmp_path):
+            path = tmp_path / 'cache.h5'
+            source = xr.DataArray(
+                [1.1, 2.2, 3.3],
+                coords=dict(x=[3, 4, 5]),
+            )
+            source = source.pint.quantify(x='s', A='m')
+            source.attrs.update(
+                {
+                    'date': '2024-04-26',
+                    'inlet.flow_rate': '1.0L/min',
+                    'inlet.scale': 2.0,
+                }
+            )
+
+            workflow = ProcessNode(
+                parent=ProcessNode(runner=DelegatedSource(delegate=lambda: source)),
+                runner=XArrayFileCache(data_structure='DataArray'),
+                params={
+                    'filename': PlainProcessParam(value=str(path)),
+                },
+            )
+
+            # create cache
+            assert not path.exists()
+            workflow.run()
+
+            # load cached version (by running process again)
+            cached = workflow.run()
+            assert cached is not source
+
+            # check data integrity
+            xarray.testing.assert_identical(source, cached)
+
+            # assert content
+            assert source.attrs == cached.attrs
+
+            # assert name
+            assert source.name == cached.name
+
+    class TestDataTree:
+        def test_cache_datatree(self, tmp_path):
+            path = tmp_path / 'cache.h5'
+            source = xr.DataTree.from_dict(
+                {
+                    './': xr.Dataset(
+                        {
+                            'A': ('x', [1.1, 2.2, 3.3]),
+                            'B': ('x', [1, 2, 3]),
+                            'C': ('x', ['a', 'b', 'c']),
+                        },
+                        coords=dict(x=[3, 4, 5]),
+                        attrs={
+                            'date': '2024-04-26',
+                            'inlet.flow_rate': '1.0L/min',
+                            'inlet.scale': 2.0,
+                        },
+                    ),
+                    './error': xr.Dataset(
+                        {
+                            'A': ('x', [0.1, 0.2, 0.3]),
+                            'B': ('x', [0.01, 0.02, 0.03]),
+                        },
+                        coords=dict(x=[3, 4, 5]),
+                        attrs={
+                            'date': '2024-04-26',
+                            'inlet.flow_rate': '1.0L/min',
+                            'inlet.scale': 2.0,
+                        },
+                    ),
+                }
+            )
+
+            # source = source.pint.quantify(x='s', A='m')
+
+            workflow = rdm.Workflow.create(
+                [
+                    rdm.DelegatedSource(delegate=lambda: source),
+                    (
+                        rdm.xarrays.XArrayFileCache(data_structure='DataTree'),
+                        dict(filename=str(path)),
+                    ),
+                ]
+            )
+
+            # create cache
+            assert not path.exists()
+            workflow.run()
+
+            # load cached version (by running process again)
+            cached = workflow.run()
+            assert cached is not source
+
+            # check data integrity
+            xarray.testing.assert_identical(source, cached)
+
+            # assert content
+            assert source.attrs == cached.attrs
+
+            # assert name
+            assert source.name == cached.name
+
+        def test_cache_datatree_with_units(self, tmp_path):
+            path = tmp_path / 'cache.h5'
+            source = xr.DataTree.from_dict(
+                {
+                    './': xr.Dataset(
+                        {
+                            'A': ('x', [1.1, 2.2, 3.3]),
+                            'B': ('x', [1, 2, 3]),
+                            'C': ('x', ['a', 'b', 'c']),
+                        },
+                        coords=dict(x=[3, 4, 5]),
+                        attrs={
+                            'date': '2024-04-26',
+                            'inlet.flow_rate': '1.0L/min',
+                            'inlet.scale': 2.0,
+                        },
+                    ).pint.quantify(x='s', A='m'),
+                    './error': xr.Dataset(
+                        {
+                            'A': ('x', [0.1, 0.2, 0.3]),
+                            'B': ('x', [0.01, 0.02, 0.03]),
+                        },
+                        coords=dict(x=[3, 4, 5]),
+                        attrs={
+                            'date': '2024-04-26',
+                            'inlet.flow_rate': '1.0L/min',
+                            'inlet.scale': 2.0,
+                        },
+                    ).pint.quantify(x='s', A='m', B='ppm'),
+                }
+            )
+
+            # source = source.pint.quantify(x='s', A='m')
+
+            workflow = rdm.Workflow.create(
+                [
+                    rdm.DelegatedSource(delegate=lambda: source),
+                    (
+                        rdm.xarrays.XArrayFileCache(data_structure='DataTree'),
+                        dict(filename=str(path)),
+                    ),
+                ]
+            )
+
+            # create cache
+            assert not path.exists()
+            workflow.run()
+
+            # load cached version (by running process again)
+            cached = workflow.run()
+            assert cached is not source
+
+            # check data integrity
+            xarray.testing.assert_identical(source, cached)
+
+            # assert content
+            assert source.attrs == cached.attrs
+
+            # assert name
+            assert source.name == cached.name
