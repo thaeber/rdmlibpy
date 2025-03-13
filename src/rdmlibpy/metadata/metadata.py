@@ -4,7 +4,17 @@ from __future__ import annotations
 import collections.abc
 from os import PathLike
 from pathlib import Path
-from typing import Any, ByteString, Mapping, Optional, Sequence, Type
+from typing import (
+    Any,
+    ByteString,
+    Generic,
+    Mapping,
+    Optional,
+    Sequence,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from omegaconf import OmegaConf
 
@@ -18,10 +28,17 @@ def _get_type_of(class_or_object: Any) -> Type[Any]:
     return type_
 
 
-class MetadataNode:
-    def __init__(self, parent: Optional['MetadataNode'], container):
+T = TypeVar('T', bound=Union[Mapping[str, Any], Sequence[Any]])
+
+
+class MetadataNode(Generic[T]):
+    def __init__(self, parent: Optional['MetadataNode'], container: T):
         self._parent: Optional[MetadataNode] = parent
-        self._container: Any = container
+        self._container: T = container
+
+    @property
+    def container(self) -> T:
+        return self._container
 
     @staticmethod
     def _wrap_container(
@@ -134,7 +151,9 @@ class MetadataNode:
         return item in self._container
 
 
-class MetadataDict(MetadataNode, collections.abc.Mapping):
+class MetadataDict(
+    MetadataNode[collections.abc.Mapping[str, Any]], collections.abc.Mapping
+):
     def __init__(self, parent: None | MetadataNode, container: Mapping[str, Any]):
         super().__init__(parent, container)
 
@@ -148,7 +167,9 @@ class MetadataDict(MetadataNode, collections.abc.Mapping):
         return all([key in self._container for key in keys])
 
 
-class MetadataList(MetadataNode, collections.abc.Sequence):
+class MetadataList(
+    MetadataNode[collections.abc.Sequence[Any]], collections.abc.Sequence
+):
     def __init__(self, parent: None | MetadataNode, container: Sequence[Any]):
         super().__init__(parent, container)
 
