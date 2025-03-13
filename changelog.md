@@ -1,5 +1,13 @@
 <!-- insertion marker -->
 
+<a name="v0.2.18"></a>
+
+## [v0.2.18](https://github.com/thaeber/rdmlibpy/compare/v0.2.17...v0.2.18) (2025-03-13)
+
+### Features
+
+- Exposing underlying metadata container for direct access of source data ([334ecb8](https://github.com/thaeber/rdmlibpy/commit/334ecb885581326c0a87bd040e2d24ea78395c99))
+
 <a name="v0.2.17"></a>
 
 ## [v0.2.17](https://github.com/thaeber/rdmlibpy/compare/v0.2.16...v0.2.17) (2025-03-10)
