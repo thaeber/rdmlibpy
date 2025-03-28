@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from rdmlibpy.metadata import Metadata
-from rdmlibpy.metadata.resolvers import _parse_time_delta_string
+from rdmlibpy.metadata.resolvers import _parse_time_delta_string, add_timedelta
 
 
 class TestMetaGetResolver:
@@ -27,11 +27,14 @@ class TestMetaGetResolver:
         assert meta.data[0].steps[1].params.date == '2024-01-16'
 
 
-class TestMetaSubtractTimeDelta:
+class TestParseTimeDeltaString:
     def test_string_parsing(self):
         assert _parse_time_delta_string('1m') == np.timedelta64(1, 'm')
         assert _parse_time_delta_string('1 m') == np.timedelta64(1, 'm')
         assert _parse_time_delta_string('  1 m  ') == np.timedelta64(1, 'm')
+        assert _parse_time_delta_string('-1m') == np.timedelta64(-1, 'm')
+        assert _parse_time_delta_string('-1 m') == np.timedelta64(-1, 'm')
+        assert _parse_time_delta_string('  -1 m  ') == np.timedelta64(-1, 'm')
 
         assert _parse_time_delta_string('1D') == np.timedelta64(1, 'D')
         assert _parse_time_delta_string('1m') == np.timedelta64(1, 'm')
@@ -53,11 +56,14 @@ class TestMetaSubtractTimeDelta:
             _parse_time_delta_string('m')
 
         with pytest.raises(ValueError):
-            _parse_time_delta_string('1')
-
-        with pytest.raises(ValueError):
             _parse_time_delta_string('1Y')
 
+        # np.timedelta64 works with no units, however the result
+        # may not be what the user expects (probably bug in numpy?)
+        assert _parse_time_delta_string('1') == 1
+
+
+class TestMetaSubtractTimeDelta:
     def test_subtract_time_delta(self):
         meta = Metadata.create(
             """
@@ -88,7 +94,36 @@ class TestMetaSubtractTimeDelta:
 
             start: 2024-01-16T12:00
             data:
-              - nested: ${meta.subtract-timedelta:${meta.get:start},12m}
+                - nested: ${meta.subtract-timedelta:${meta.get:start},12m}
             """
         )
         assert meta.data[0].nested == '2024-01-16T11:48'
+
+
+class TestMetaAddTimeDelta:
+    def test_preserve_input_type(self):
+        add_timedelta('2024-01-16T12:00', '12m')
+
+    def test_add_time_delta(self):
+        meta = Metadata.create(
+            """
+            date: 2024-01-16
+            title: NH3 oxidation over Pt
+
+            start: ${meta.add-timedelta:2024-01-16T12:00,12m}
+            """
+        )
+        assert meta.start == '2024-01-16T12:12'
+
+
+class TestMetaTimeDelta:
+    def test_add_time_delta(self):
+        meta = Metadata.create(
+            """
+            date: 2024-01-16
+            title: NH3 oxidation over Pt
+
+            delta: ${meta.timedelta:2024-01-16T12:00,2024-01-16T12:12}
+            """
+        )
+        assert meta.delta == np.timedelta64(-12, 'm')
