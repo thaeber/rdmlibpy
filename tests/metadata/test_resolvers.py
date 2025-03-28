@@ -127,3 +127,22 @@ class TestMetaTimeDelta:
             """
         )
         assert meta.delta == np.timedelta64(-12, 'm')
+
+    def test_nested_extrapolation(self):
+        meta = Metadata.create(
+            """
+            date: 2024-01-16
+            title: NH3 oxidation over Pt
+
+            __timedelta__: ${meta.timedelta:2025-03-25T10:10:00,2025-03-25T10:00:00}
+
+            start: 2025-03-25T10:25:00
+            stop: 2025-03-25T10:35:02
+
+            params:
+                start: ${meta.add-timedelta:${meta.get:start},${__timedelta__}}
+                stop: ${meta.add-timedelta:${meta.get:stop},${__timedelta__}}
+            """
+        )
+        assert meta.params.start == np.datetime64('2025-03-25T10:35:00')
+        assert meta.params.stop == np.datetime64('2025-03-25T10:45:02')
