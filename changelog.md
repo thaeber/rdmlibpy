@@ -1,5 +1,13 @@
 <!-- insertion marker -->
 
+<a name="v0.2.19"></a>
+
+## [v0.2.19](https://github.com/thaeber/rdmlibpy/compare/v0.2.18...v0.2.19) (2025-03-28)
+
+### Features
+
+- Metadata resolvers to calculate timedelta values from timestamps ([f8163ac](https://github.com/thaeber/rdmlibpy/commit/f8163ac17a09657e0efb8dabee198e67d0f98e57))
+
 <a name="v0.2.18"></a>
 
 ## [v0.2.18](https://github.com/thaeber/rdmlibpy/compare/v0.2.17...v0.2.18) (2025-03-13)
