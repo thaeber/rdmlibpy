@@ -1,5 +1,13 @@
 <!-- insertion marker -->
 
+<a name="v0.2.20"></a>
+
+## [v0.2.20](https://github.com/thaeber/rdmlibpy/compare/v0.2.19...v0.2.20) (2025-03-29)
+
+### Bug Fixes
+
+- timespan conversion and add test (#27) ([507a815](https://github.com/thaeber/rdmlibpy/commit/507a8156d26791bd66238e0a6687938a6c3d7fdd))
+
 <a name="v0.2.19"></a>
 
 ## [v0.2.19](https://github.com/thaeber/rdmlibpy/compare/v0.2.18...v0.2.19) (2025-03-28)
