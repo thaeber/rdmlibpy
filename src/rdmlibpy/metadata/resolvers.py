@@ -1,10 +1,12 @@
 import re
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
+import pint
 from omegaconf import DictConfig, ListConfig, OmegaConf
 from omegaconf.base import Box
 from omegaconf.errors import OmegaConfBaseException
+from pint.facets.plain import PlainQuantity
 
 
 def _get_inherited_property(key, node: Box, *, default=None):
@@ -22,54 +24,117 @@ def get_metadata_property(name, *, _parent_):
     return _get_inherited_property(name, _parent_)
 
 
-def _parse_time_delta_string(value: str):
-    match = re.match(r'\s*(-?\d+)\s*(ms|us|ns|ps|fs|as|D|h|m|s)', value)
-    if match:
-        number, unit = match.groups()
-        return np.timedelta64(number, unit)
+def numpy_datetime64_resolution(value: np.datetime64 | np.timedelta64) -> str:
+    regex = re.compile(r'^[^\[]+\[([^\]]+)\]$')
+    s = str(value.dtype)
+    match = regex.match(s)
+    if match is None:
+        raise ValueError(f'Could not parse time resolution from {s}')
     else:
-        try:
-            dt = np.timedelta64(value)
-            if not np.isnat(dt):
-                return dt
-            else:
-                raise ValueError(f'>{value}< is not a valid time delta: {dt}.')
-        except ValueError:
-            raise ValueError(f'>{value}< is not a valid time delta.')
+        return match.group(1)
 
 
-def subtract_timedelta(timestamp: Any, value: str):
-    is_string = isinstance(timestamp, str)
-    if is_string:
-        timestamp = np.datetime64(timestamp)
-    delta = _parse_time_delta_string(value)
-    t = timestamp - delta
-    if is_string:
-        return str(t)
+_datetime64_resolution_mapping = {
+    'Y': 'years',
+    'M': 'months',
+    'W': 'weeks',
+    'D': 'days',
+    'h': 'hours',
+    'm': 'minutes',
+    's': 'seconds',
+    'ms': 'milliseconds',
+    'us': 'microseconds',
+    'µs': 'microseconds',
+    'ns': 'nanoseconds',
+    'ps': 'picoseconds',
+    'fs': 'femtoseconds',
+    'as': 'attoseconds',
+}
+
+
+def numpy_datetime64_resolution_to_pint_unit(value: str):
+    ureg = pint.application_registry.get()
+    ureg = cast(pint.UnitRegistry, ureg)
+
+    if value in _datetime64_resolution_mapping:
+        return ureg.Unit(_datetime64_resolution_mapping[value])
     else:
-        return t
+        raise ValueError(f'Could not convert {value} to a valid time unit.')
 
 
-def add_timedelta(timestamp: Any, value: str):
-    is_string = isinstance(timestamp, str)
-    if is_string:
-        timestamp = np.datetime64(timestamp)
-    delta = _parse_time_delta_string(value)
-    t = timestamp + delta
-    if is_string:
-        return str(t)
-    else:
-        return t
+def timedelta64_to_pint(value: np.timedelta64):
+    ureg = pint.application_registry.get()
+    ureg = cast(pint.UnitRegistry, ureg)
+    np_unit = numpy_datetime64_resolution(value)
+    pint_unit = numpy_datetime64_resolution_to_pint_unit(np_unit)
+    return ureg.Quantity(value / np.timedelta64(1, np_unit), pint_unit)
+
+
+def pint_to_timedelta64(value: PlainQuantity):
+    ureg = pint.application_registry.get()
+    ureg = cast(pint.UnitRegistry, ureg)
+
+    for np_unit, pint_unit in _datetime64_resolution_mapping.items():
+        converted = value.m_as(pint_unit)
+        eps = np.spacing(converted)
+        if converted - int(converted) < 2 * eps:
+            break
+    return np.timedelta64(int(converted), np_unit)
+
+
+def parse_timespan_string(value: str):
+    try:
+        ureg = pint.application_registry.get()
+        ureg = cast(pint.UnitRegistry, ureg)
+        timespan = ureg.Quantity(value)
+        if timespan.check('[time]'):
+            return timespan
+    except (ValueError, AssertionError, pint.UndefinedUnitError):
+        pass
+    raise ValueError(f'>{value}< is not a valid time span.')
+
+
+def add_timespan(date_str: str, value: str):
+    timestamp = np.datetime64(date_str)
+    delta = parse_timespan_string(value)
+    t = timestamp + pint_to_timedelta64(delta)
+    return str(t)
+
+
+def subtract_timespan(date_str: str, value: str):
+    timestamp = np.datetime64(date_str)
+    delta = parse_timespan_string(value)
+    t = timestamp - pint_to_timedelta64(delta)
+    return str(t)
 
 
 def timedelta(t1: Any, t2: Any):
-    return np.datetime64(t1) - np.datetime64(t2)
+    dt = np.datetime64(t1) - np.datetime64(t2)
+
+    ureg = pint.application_registry.get()
+    ureg = cast(pint.UnitRegistry, ureg)
+    converted = timedelta64_to_pint(dt)  # type: ignore
+    return f'{converted}'
 
 
 def register_custom_resolvers():
-    OmegaConf.register_new_resolver('meta.get', get_metadata_property, replace=True)
     OmegaConf.register_new_resolver(
-        'meta.subtract-timedelta', subtract_timedelta, replace=True
+        'meta.get',
+        get_metadata_property,
+        replace=True,
     )
-    OmegaConf.register_new_resolver('meta.add-timedelta', add_timedelta, replace=True)
-    OmegaConf.register_new_resolver('meta.timedelta', timedelta, replace=True)
+    OmegaConf.register_new_resolver(
+        'meta.plus.timedelta',
+        add_timespan,
+        replace=True,
+    )
+    OmegaConf.register_new_resolver(
+        'meta.minus.timedelta',
+        subtract_timespan,
+        replace=True,
+    )
+    OmegaConf.register_new_resolver(
+        'meta.timedelta',
+        timedelta,
+        replace=True,
+    )
