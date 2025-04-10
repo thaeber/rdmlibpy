@@ -44,6 +44,9 @@ class ProcessBase(pydantic.BaseModel, abc.ABC):
     def fullname(self):
         return f'{self.name}@v{self.version}'
 
+    def get_config(self):
+        return self.model_dump(exclude_defaults=False, exclude={'name', 'version'})
+
 
 class ProcessNode(pydantic.BaseModel):
     runner: ProcessBase

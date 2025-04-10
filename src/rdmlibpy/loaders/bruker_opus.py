@@ -10,7 +10,18 @@ from rdmlibpy.process import Loader
 
 logger = logging.getLogger(__name__)
 
-TypeOfSpectrum = Literal['absorbance']
+TypeOfSpectrum = Literal[
+    'absorbance',
+    'a',
+    'sample',
+    'sm',
+    'reference',
+    'rf',
+    'igsm',
+    'igrf',
+    'Kubelka-Munk',
+    'km',
+]
 
 
 class BrukerOpusLoader(Loader):
@@ -22,7 +33,7 @@ class BrukerOpusLoader(Loader):
     concat_dim: str = 'timestamp'
     date_format: str = '%d/%m/%Y %H:%M:%S.%f'
     squeeze: bool = (
-        True  # return DataArray instance of List[DataArray] for single spectrum
+        True  # return DataArray instead of List[DataArray] for single spectrum
     )
     sort_by_timestamp: bool = True
 
@@ -52,7 +63,7 @@ class BrukerOpusLoader(Loader):
         logger.debug(f'Loading OPUS file: {source}')
         opus_file = read_opus(str(source))
 
-        key = self.spectrum_key
+        key = self.map_spectrum_key(self.spectrum)
         logger.debug(f'Extracting spectrum of type: {self.spectrum} (key: {key})')
         spectrum = getattr(opus_file, key)
         da = xr.DataArray(
@@ -68,15 +79,14 @@ class BrukerOpusLoader(Loader):
 
         return da
 
-    @property
-    def spectrum_key(self):
+    def map_spectrum_key(self, key: TypeOfSpectrum):
         if self.spectrum == 'absorbance':
             return 'a'
+        elif self.spectrum == 'sample':
+            return 'sm'
+        elif self.spectrum == 'reference':
+            return 'rf'
+        elif self.spectrum == 'Kubelka-Munk':
+            return 'km'
         else:
-            raise ValueError(f'Unknown spectral type: {self.spectrum}')
-
-
-# da = BrukerOpusLoader(concatenate=True).run(
-#     r'E:\2022-NOCO\raw\DRIFTS\2024-10-17\DRIFTS\300\LC003.*'
-# )
-# da
+            return key

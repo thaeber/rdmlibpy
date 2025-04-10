@@ -87,3 +87,39 @@ class TestBrukerOpusLoader:
         assert da.timestamp[0] == np.datetime64('2024-10-17T16:19:13.069')
         assert da.timestamp[1] == np.datetime64('2024-10-17T16:19:04.075')
         assert da.timestamp[2] == np.datetime64('2024-10-17T16:19:08.559')
+
+    def test_load_non_default_spectrum_by_name(self, data_path: Path):
+        loader = BrukerOpusLoader(spectrum='sample')
+        da = loader.run(
+            source=data_path / 'bruker/LC003.3448',
+        )
+        assert isinstance(da, xr.DataArray)
+        assert da.dims == ('timestamp', 'nu')
+        assert len(da.nu) == 4978  # type: ignore
+        assert da.name == 'sample'
+
+        assert da.timestamp[0] == np.datetime64('2024-10-17T16:19:04.075000')
+
+    def test_load_non_default_spectrum_by_acronym(self, data_path: Path):
+        loader = BrukerOpusLoader(spectrum='igsm')
+        da = loader.run(
+            source=data_path / 'bruker/LC003.3448',
+        )
+        assert isinstance(da, xr.DataArray)
+        assert da.dims == ('timestamp', 'nu')
+        assert len(da.nu) == 15240  # type: ignore
+        assert da.name == 'igsm'
+
+        assert da.timestamp[0] == np.datetime64('2024-10-17T16:19:04.075000')
+
+    def test_load_non_default_spectrum_by_acronym2(self, data_path: Path):
+        loader = BrukerOpusLoader(spectrum='igrf')
+        da = loader.run(
+            source=data_path / 'bruker/LC003.3448',
+        )
+        assert isinstance(da, xr.DataArray)
+        assert da.dims == ('timestamp', 'nu')
+        assert len(da.nu) == 15240  # type: ignore
+        assert da.name == 'igrf'
+
+        assert da.timestamp[0] == np.datetime64('2024-10-17T16:08:45.180000')
