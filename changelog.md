@@ -1,5 +1,13 @@
 <!-- insertion marker -->
 
+<a name="v0.2.21"></a>
+
+## [v0.2.21](https://github.com/thaeber/rdmlibpy/compare/v0.2.20...v0.2.21) (2025-04-10)
+
+### Features
+
+- Enable loading all spectral types in Bruker files ([e2b59b0](https://github.com/thaeber/rdmlibpy/commit/e2b59b0ad939bf456a868bd46967a9a622980422))
+
 <a name="v0.2.20"></a>
 
 ## [v0.2.20](https://github.com/thaeber/rdmlibpy/compare/v0.2.19...v0.2.20) (2025-03-29)
