@@ -225,11 +225,16 @@ class XArrayAffineTransform(XArrayTransform):
     name: str = 'xarray.affine.transform'
     version: str = '1'
 
-    def run(self, source: xr.DataArray | xr.Dataset, matrix, **kwargs):
+    def run(
+        self, source: xr.DataArray | xr.Dataset, matrix=None, dims=('y', 'x'), **kwargs
+    ):
         with self.keep_attrs():
+            if matrix is None:
+                matrix = np.eye(len(dims) + 1)
             return self.transform_image(
                 source,
                 transform=skimage.transform.AffineTransform(matrix),
+                dims=dims,
                 **kwargs,
             )
 
