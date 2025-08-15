@@ -309,7 +309,10 @@ class TestXArrayFileCache:
         assert cached.A.pint.units == pint.Unit('m')
         assert cached.B.pint.units is None
         assert cached.C.pint.units is None
-        assert pint.Unit(cached.x.attrs['units']) == pint.Unit('s')
+        if pint_xarray.__version__ <= '0.5':
+            assert pint.Unit(cached.x.attrs['units']) == pint.Unit('s')
+        else:
+            assert cached.x.pint.units == pint.Unit('s')
 
     def test_preserve_attrs(self, tmp_path):
         path = tmp_path / 'cache.h5'

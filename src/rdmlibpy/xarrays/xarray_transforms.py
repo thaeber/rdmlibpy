@@ -126,3 +126,39 @@ class XArraySqueeze(Transform):
             xr.DataArray | xr.Dataset: The squeezed xarray object.
         """
         return source.squeeze(dim=dim)
+
+
+class XArrayStatisticsMean(Transform):
+    """
+    XArrayStatisticsMean is a transform that computes the mean along the specified dimension(s)
+    of an xarray DataArray or Dataset.
+    Attributes:
+        name (str): The name of the transform, set to 'xarray.statistics.mean'.
+        version (str): The version of the transform, set to '1'.
+    Methods:
+        run(source: xr.DataArray | xr.Dataset, dim=None, **kwargs):
+            Computes the mean of the input xarray object along the specified dimension(s).
+            Parameters:
+                source (xr.DataArray | xr.Dataset): The input xarray object.
+                dim (str or list of str, optional): The dimension(s) along which to compute the mean.
+                **kwargs: Additional keyword arguments passed to the `mean` method.
+            Returns:
+                xr.DataArray or xr.Dataset: The xarray object with the mean computed.
+    """
+
+    name: str = 'xarray.statistics.mean'
+    version: str = '1'
+
+    def run(self, source: xr.DataArray | xr.Dataset, dim=None, **kwargs):
+        """
+        Compute the mean of the given xarray DataArray or Dataset along the specified dimension(s).
+
+        Parameters:
+            source (xr.DataArray | xr.Dataset): The input xarray object.
+            dim (str or list of str, optional): The dimension(s) along which to compute the mean.
+            **kwargs: Additional keyword arguments passed to the `mean` method.
+
+        Returns:
+            xr.DataArray | xr.Dataset: The xarray object with the mean computed.
+        """
+        return source.mean(dim=dim, **kwargs)

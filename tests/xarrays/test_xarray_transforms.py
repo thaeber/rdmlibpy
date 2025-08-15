@@ -6,7 +6,8 @@ import pint_xarray
 import xarray as xr
 
 from rdmlibpy.xarrays import XArrayAttributes, XArrayUnits
-from rdmlibpy.xarrays.transforms import XArraySqueeze
+from rdmlibpy.xarrays.xarray_transforms import XArraySqueeze
+from rdmlibpy.xarrays.xarray_transforms import XArrayStatisticsMean
 
 _ = pint_xarray.unit_registry
 
@@ -42,7 +43,10 @@ class TestDataFrameUnits:
         assert ds.A.pint.units == pint.Unit('K')
         assert ds.B.pint.units == pint.Unit('m/s')
         assert ds.C.pint.units is None
-        assert pint.Unit(ds.x.attrs['units']) == pint.Unit('1/cm')
+        if pint_xarray.__version__ <= '0.5':
+            assert pint.Unit(ds.x.attrs['units']) == pint.Unit('1/cm')
+        else:
+            assert ds.x.pint.units == pint.Unit('1/cm')
 
     def test_dataset_with_default_unit(self, data_path: Path):
         # create test data
@@ -69,7 +73,10 @@ class TestDataFrameUnits:
         assert ds.A.pint.units == pint.Unit('K')
         assert ds.B.pint.units == pint.Unit('m/s')
         assert ds.C.pint.units == pint.Unit('ppm')
-        assert pint.Unit(ds.x.attrs['units']) == pint.Unit('1/cm')
+        if pint_xarray.__version__ <= '0.5':
+            assert pint.Unit(ds.x.attrs['units']) == pint.Unit('1/cm')
+        else:
+            assert ds.x.pint.units == pint.Unit('1/cm')
 
     def test_data_array(self, data_path: Path):
         # create test data
@@ -88,7 +95,10 @@ class TestDataFrameUnits:
             },
         )
         assert da.pint.units == pint.Unit('K')
-        assert pint.Unit(da.x.attrs['units']) == pint.Unit('1/cm')
+        if pint_xarray.__version__ <= '0.5':
+            assert pint.Unit(da.x.attrs['units']) == pint.Unit('1/cm')
+        else:
+            assert da.x.pint.units == pint.Unit('1/cm')
 
     def test_data_array_with_default_unit(self, data_path: Path):
         # create test data
@@ -107,7 +117,10 @@ class TestDataFrameUnits:
             default_unit='K',
         )
         assert da.pint.units == pint.Unit('K')
-        assert pint.Unit(da.x.attrs['units']) == pint.Unit('1/cm')
+        if pint_xarray.__version__ <= '0.5':
+            assert pint.Unit(da.x.attrs['units']) == pint.Unit('1/cm')
+        else:
+            assert da.x.pint.units == pint.Unit('1/cm')
 
 
 class TestDataFrameAttributes:
@@ -249,3 +262,80 @@ class TestXArraySqueeze:
         assert result.dims == {"y": 10}
         assert result["var1"].shape == (10,)
         assert result["var2"].shape == (10,)
+
+
+class TestXArrayStatisticsMean:
+    def test_create_instance(self):
+        transform = XArrayStatisticsMean()
+
+        assert transform.name == 'xarray.statistics.mean'
+        assert transform.version == '1'
+
+    def test_mean_along_single_dimension(self):
+        transform = XArrayStatisticsMean()
+        values = np.random.rand(5, 10)
+        data = xr.DataArray(
+            values,
+            dims=["x", "y"],
+            coords={"x": range(5), "y": range(10)},
+        )
+
+        result = transform.run(data, dim="x")
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("y",)
+        assert result.shape == (10,)
+        assert np.allclose(result.values, values.mean(axis=0))
+
+    def test_mean_along_multiple_dimensions(self):
+        transform = XArrayStatisticsMean()
+        values = np.random.rand(5, 10, 15)
+        data = xr.DataArray(
+            values,
+            dims=["x", "y", "z"],
+            coords={"x": range(5), "y": range(10), "z": range(15)},
+        )
+
+        result = transform.run(data, dim=["x", "z"])
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("y",)
+        assert result.shape == (10,)
+        assert np.allclose(result.values, values.mean((0, 2)))
+
+    def test_mean_without_specifying_dimension(self):
+        transform = XArrayStatisticsMean()
+        values = np.random.rand(5, 10)
+        data = xr.DataArray(
+            values,
+            dims=["x", "y"],
+            coords={"x": range(5), "y": range(10)},
+        )
+
+        result = transform.run(data)
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ()
+        assert result.shape == ()
+        assert np.allclose(result.values, values.mean())
+
+    def test_mean_on_dataset(self):
+        transform = XArrayStatisticsMean()
+        values1 = np.random.rand(5, 10)
+        values2 = np.random.rand(5, 10)
+        data = xr.Dataset(
+            {
+                "var1": (["x", "y"], values1),
+                "var2": (["x", "y"], values2),
+            },
+            coords={"x": range(5), "y": range(10)},
+        )
+
+        result = transform.run(data, dim="x")
+
+        assert isinstance(result, xr.Dataset)
+        assert result.dims == {"y": 10}
+        assert result["var1"].shape == (10,)
+        assert result["var2"].shape == (10,)
+        assert np.allclose(result["var1"].values, values1.mean(axis=0))
+        assert np.allclose(result["var2"].values, values2.mean(axis=0))

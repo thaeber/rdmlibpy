@@ -55,10 +55,11 @@ class XArrayFileCache(Cache):
             return self._read_DataTree(filename, rebuild=rebuild, **kwargs)
 
     def _read_DataArray(self, filename: FilePath, rebuild: bool = False, **kwargs):
-        ds = self._read_Dataset(filename, rebuild=rebuild, **kwargs)
+        cached = self._read_Dataset(filename, rebuild=rebuild, **kwargs)
+        cached = self._post_process_dataset(cached)
 
-        da = ds[list(ds.data_vars)[0]]
-        if 'xarray:unnamed' in ds.attrs:
+        da = cached[list(cached.data_vars)[0]]
+        if 'xarray:unnamed' in cached.attrs:
             da.name = None
         return da
 
@@ -161,6 +162,7 @@ class XArrayFileCache(Cache):
         # check if dataset has any pint units or dimensions associated with it
         if any(
             [ds[key].pint.dimensionality is not None for key in list(ds.data_vars)]
+            + [ds[key].pint.dimensionality is not None for key in list(ds.coords)]
             + [
                 isinstance(ds[key].attrs.get('units', None), pint.Unit)
                 for key in list(ds.coords)
