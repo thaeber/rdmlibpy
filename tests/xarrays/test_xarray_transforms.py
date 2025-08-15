@@ -6,6 +6,7 @@ import pint_xarray
 import xarray as xr
 
 from rdmlibpy.xarrays import XArrayAttributes, XArrayUnits
+from rdmlibpy.xarrays.transforms import XArraySqueeze
 
 _ = pint_xarray.unit_registry
 
@@ -167,3 +168,84 @@ class TestDataFrameAttributes:
         attrs['A4']['B4']['C4'] = 'test'  # type: ignore
 
         assert not (dict(actual.attrs) == dict(attrs))
+
+
+class TestXArraySqueeze:
+    def test_create_instance(self):
+        transform = XArraySqueeze()
+
+        assert transform.name == 'xarray.squeeze'
+        assert transform.version == '1'
+
+    def test_squeeze_all_dimensions(self):
+        transform = XArraySqueeze()
+        data = xr.DataArray(
+            np.random.rand(1, 10, 1),
+            dims=["x", "y", "z"],
+            coords={"x": [0], "y": range(10), "z": [0]},
+        )
+
+        result = transform.run(data)
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("y",)
+        assert result.shape == (10,)
+
+    def test_squeeze_specific_dimension(self):
+        transform = XArraySqueeze()
+        data = xr.DataArray(
+            np.random.rand(1, 10, 1),
+            dims=["x", "y", "z"],
+            coords={"x": [0], "y": range(10), "z": [0]},
+        )
+
+        result = transform.run(data, dim="x")
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("y", "z")
+        assert result.shape == (10, 1)
+
+    def test_squeeze_multiple_dimensions(self):
+        transform = XArraySqueeze()
+        data = xr.DataArray(
+            np.random.rand(1, 10, 1),
+            dims=["x", "y", "z"],
+            coords={"x": [0], "y": range(10), "z": [0]},
+        )
+
+        result = transform.run(data, dim=["x", "z"])
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("y",)
+        assert result.shape == (10,)
+
+    def test_squeeze_no_size_one_dimensions(self):
+        transform = XArraySqueeze()
+        data = xr.DataArray(
+            np.random.rand(5, 10),
+            dims=["x", "y"],
+            coords={"x": range(5), "y": range(10)},
+        )
+
+        result = transform.run(data)
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("x", "y")
+        assert result.shape == (5, 10)
+
+    def test_squeeze_dataset(self):
+        transform = XArraySqueeze()
+        data = xr.Dataset(
+            {
+                "var1": (["x", "y", "z"], np.random.rand(1, 10, 1)),
+                "var2": (["x", "y", "z"], np.random.rand(1, 10, 1)),
+            },
+            coords={"x": [0], "y": range(10), "z": [0]},
+        )
+
+        result = transform.run(data)
+
+        assert isinstance(result, xr.Dataset)
+        assert result.dims == {"y": 10}
+        assert result["var1"].shape == (10,)
+        assert result["var2"].shape == (10,)
