@@ -41,21 +41,28 @@ class XArrayAttributes(Transform):
     This class provides functionality to update the attributes of an xarray
     object (DataArray or Dataset) by taking a deep copy of the provided keyword
     arguments and applying them as attributes.
+
     Attributes:
-        name (str): The name of the transform, identifying it as 'xarray.set.attrs'.
+        name (str): The name of the transform, identifying it as
+            'xarray.set.attrs'.
         version (str): The version of the transform, set to '1'.
+
     Methods:
         run(source: xr.DataArray | xr.Dataset, **kwargs):
             Updates the attributes of the provided xarray object with the given
-            keyword arguments. The attributes are deep-copied to ensure immutability
-            and are serialized/deserialized using YAML for consistency.
+            keyword arguments. The attributes are deep-copied to ensure
+            immutability and are serialized/deserialized using YAML for
+            consistency.
+
             Args:
-                source (xr.DataArray | xr.Dataset): The xarray object whose attributes
-                    are to be updated.
-                **kwargs: Arbitrary keyword arguments representing the attributes to
-                    be added or updated on the xarray object.
+                source (xr.DataArray | xr.Dataset): The xarray object whose
+                    attributes are to be updated.
+                **kwargs: Arbitrary keyword arguments representing the
+                    attributes to be added or updated on the xarray object.
+
             Returns:
-                xr.DataArray | xr.Dataset: The xarray object with updated attributes.
+                xr.DataArray | xr.Dataset: The xarray object with updated
+                attributes.
     """
 
     name: str = 'xarray.set.attrs'
@@ -65,18 +72,22 @@ class XArrayAttributes(Transform):
         """
         Executes a transformation on the given xarray object (DataArray or Dataset)
         by updating its attributes with the provided keyword arguments.
+
         Parameters:
             source (xr.DataArray | xr.Dataset): The xarray object (DataArray or Dataset)
-                to be transformed.
+            to be transformed.
             **kwargs: Arbitrary keyword arguments representing attributes to be added
-                or updated in the `source` object's attributes.
+            or updated in the `source` object's attributes.
+
         Returns:
-            xr.DataArray | xr.Dataset: The transformed xarray object with updated attributes.
+            xr.DataArray | xr.Dataset: The transformed xarray object with updated
+            attributes.
+
         Notes:
-            - The attributes are deep-copied and serialized to YAML format before being
-              applied to ensure immutability and consistency.
-            - The `source` object is modified in-place, but the same object is also returned
-              for convenience.
+            - The attributes are deep-copied and serialized to YAML format before
+              being applied to ensure immutability and consistency.
+            - The `source` object is modified in-place, but the same object is also
+              returned for convenience.
         """
         # make deep copy of attributes
         # (roundtrip serialization to yaml)
@@ -94,17 +105,24 @@ class XArrayAttributes(Transform):
 
 class XArraySqueeze(Transform):
     """
-    XArraySqueeze is a transform that applies the `squeeze` operation to an xarray DataArray or Dataset.
+    XArraySqueeze is a transform that applies the `squeeze` operation to an xarray
+    DataArray or Dataset.
+
     Attributes:
         name (str): The name of the transform, set to 'xarray.squeeze'.
         version (str): The version of the transform, set to '1'.
+
     Methods:
         run(source: xr.DataArray | xr.Dataset, dim=None, **kwargs):
             Squeezes the input xarray object by removing dimensions of size 1.
+
             Parameters:
-                source (xr.DataArray | xr.Dataset): The input xarray object to be squeezed.
-                dim (str or iterable of str, optional): The dimension(s) to squeeze. If None, all dimensions of size 1 will be squeezed.
+                source (xr.DataArray | xr.Dataset): The input xarray object to be
+                    squeezed.
+                dim (str or iterable of str, optional): The dimension(s) to squeeze.
+                    If None, all dimensions of size 1 will be squeezed.
                 **kwargs: Additional keyword arguments passed to the `squeeze` method.
+
             Returns:
                 xr.DataArray or xr.Dataset: The squeezed xarray object.
     """
@@ -117,9 +135,10 @@ class XArraySqueeze(Transform):
         Squeeze the given xarray DataArray or Dataset along the specified dimension(s).
 
         Parameters:
-            source (xr.DataArray | xr.Dataset): The input xarray object to be squeezed.
-            dim (str or list of str, optional): The dimension(s) to squeeze. If None,
-                all dimensions of size 1 will be squeezed.
+            source (xr.DataArray | xr.Dataset): The input xarray object to be
+            squeezed.
+            dim (str or list of str, optional): The dimension(s) to squeeze. If
+            None, all dimensions of size 1 will be squeezed.
             **kwargs: Additional keyword arguments passed to the `squeeze` method.
 
         Returns:
@@ -130,20 +149,28 @@ class XArraySqueeze(Transform):
 
 class XArrayStatisticsMean(Transform):
     """
-    XArrayStatisticsMean is a transform that computes the mean along the specified dimension(s)
-    of an xarray DataArray or Dataset.
+    XArrayStatisticsMean is a transform that computes the mean along the
+    specified dimension(s) of an xarray DataArray or Dataset.
+
     Attributes:
         name (str): The name of the transform, set to 'xarray.statistics.mean'.
         version (str): The version of the transform, set to '1'.
+
     Methods:
         run(source: xr.DataArray | xr.Dataset, dim=None, **kwargs):
-            Computes the mean of the input xarray object along the specified dimension(s).
+            Computes the mean of the input xarray object along the specified
+            dimension(s).
+
             Parameters:
                 source (xr.DataArray | xr.Dataset): The input xarray object.
-                dim (str or list of str, optional): The dimension(s) along which to compute the mean.
-                **kwargs: Additional keyword arguments passed to the `mean` method.
+                dim (str or list of str, optional): The dimension(s) along which
+                to compute the mean.
+                **kwargs: Additional keyword arguments passed to the `mean`
+                method.
+
             Returns:
-                xr.DataArray or xr.Dataset: The xarray object with the mean computed.
+                xr.DataArray or xr.Dataset: The xarray object with the mean
+                computed.
     """
 
     name: str = 'xarray.statistics.mean'
@@ -151,11 +178,13 @@ class XArrayStatisticsMean(Transform):
 
     def run(self, source: xr.DataArray | xr.Dataset, dim=None, **kwargs):
         """
-        Compute the mean of the given xarray DataArray or Dataset along the specified dimension(s).
+        Compute the mean of the given xarray DataArray or Dataset along the
+        specified dimension(s).
 
         Parameters:
             source (xr.DataArray | xr.Dataset): The input xarray object.
-            dim (str or list of str, optional): The dimension(s) along which to compute the mean.
+            dim (str or list of str, optional): The dimension(s) along which to
+            compute the mean.
             **kwargs: Additional keyword arguments passed to the `mean` method.
 
         Returns:
