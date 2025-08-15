@@ -32,3 +32,23 @@ class XArraySelectTimespan(Transform):
             return source
 
         return source.where(selector, drop=self.drop)
+
+
+class XArraySelectRange(Transform):
+    name: str = 'xarray.select.range'
+    version: str = '1'
+
+    drop: bool = True  # drop non-matching data from xarray
+
+    def run(self, source: xr.DataArray | xr.Dataset, dim: str, start=None, stop=None):
+        values = source[dim]
+        if (start is not None) and (stop is not None):
+            selector = (start <= values) & (values <= stop)
+        elif (start is None) and (stop is not None):
+            selector = values <= stop
+        elif (start is not None) and (stop is None):
+            selector = start <= values
+        else:
+            return source
+
+        return source.where(selector, drop=self.drop)

@@ -1,6 +1,6 @@
 from ..registry import register
 from .io import XArrayFileCache
-from .selection import XArraySelectTimespan
+from .xarray_selection import XArraySelectTimespan, XArraySelectRange
 from .xarray_transforms import (
     XArrayAffineTransform,
     XArrayAttributes,
@@ -12,6 +12,7 @@ from .xarray_transforms import (
 register(XArrayAffineTransform())
 register(XArrayAttributes())
 register(XArrayFileCache())
+register(XArraySelectRange())
 register(XArraySelectTimespan())
 register(XArraySqueeze())
 register(XArrayStatisticsMean())
