@@ -159,6 +159,8 @@ class XArrayFileCache(Cache):
         return Path(filename).exists()
 
     def _pre_process_dataset(self, ds: xr.Dataset):
+        ds = ds.copy()
+
         # check if dataset has any pint units or dimensions associated with it
         if any(
             [ds[key].pint.dimensionality is not None for key in list(ds.data_vars)]
@@ -195,6 +197,8 @@ class XArrayFileCache(Cache):
         # convert to pint units, if present
         if ds.attrs.get('pint:quantify', 0) == 1:
             ds = ds.pint.quantify()
+
+        if 'pint:quantify' in ds.attrs:
             del ds.attrs['pint:quantify']
 
         return ds

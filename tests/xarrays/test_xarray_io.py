@@ -58,6 +58,7 @@ class TestXArrayFileCache:
         assert path.exists()
 
         # check written data
+        source.attrs['pint:quantify'] = 0
         cached = xr.load_dataset(path)
         xarray.testing.assert_identical(source, cached)
 
@@ -102,6 +103,7 @@ class TestXArrayFileCache:
 
         # check written data
         cached = xr.load_dataset(path)
+        source.attrs['pint:quantify'] = 0
         xarray.testing.assert_identical(source, cached)
 
     def test_read_from_cache(self, tmp_path):
