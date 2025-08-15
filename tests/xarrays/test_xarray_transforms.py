@@ -3,11 +3,13 @@ from pathlib import Path
 import numpy as np
 import pint
 import pint_xarray
+import pytest
 import xarray as xr
 
 from rdmlibpy.xarrays import XArrayAttributes, XArrayUnits
 from rdmlibpy.xarrays.xarray_transforms import XArraySqueeze
 from rdmlibpy.xarrays.xarray_transforms import XArrayStatisticsMean
+from rdmlibpy.xarrays.xarray_transforms import XArrayAffineTransform
 
 _ = pint_xarray.unit_registry
 
@@ -430,3 +432,87 @@ class TestXArrayStatisticsMean:
         assert result["var1"].attrs["xunits"] == "m/s"
         assert result["var2"].attrs["description"] == "Variable 2"
         assert result["var2"].attrs["xunits"] == "s"
+
+
+class TestXArrayAffineTransform:
+    def test_create_instance(self):
+        transform = XArrayAffineTransform()
+
+        assert transform.name == 'xarray.affine.transform'
+        assert transform.version == '1'
+
+    def test_affine_transform_on_dataarray(self):
+        transform = XArrayAffineTransform()
+        values = np.random.rand(10, 10)
+        data = xr.DataArray(
+            values,
+            dims=["y", "x"],
+            coords={"y": range(10), "x": range(10)},
+        )
+        matrix = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+
+        result = transform.run(data, matrix)
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("y", "x")
+        assert result.shape == (10, 10)
+        assert result.values == pytest.approx(values)
+
+    def test_affine_transform_on_dataset(self):
+        transform = XArrayAffineTransform()
+        values1 = np.random.rand(10, 10)
+        values2 = np.random.rand(10, 10)
+        data = xr.Dataset(
+            {
+                "var1": (["y", "x"], values1),
+                "var2": (["y", "x"], values2),
+            },
+            coords={"y": range(10), "x": range(10)},
+        )
+        matrix = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+
+        result = transform.run(data, matrix)
+
+        assert isinstance(result, xr.Dataset)
+        assert result.dims == {"y": 10, "x": 10}
+        assert result["var1"].shape == (10, 10)
+        assert result["var2"].shape == (10, 10)
+        assert result["var1"].values == pytest.approx(values1)
+        assert result["var2"].values == pytest.approx(values2)
+
+    def test_affine_transform_keeps_attributes(self):
+        transform = XArrayAffineTransform()
+        data = xr.DataArray(
+            np.random.rand(10, 10),
+            dims=["y", "x"],
+            coords={"y": range(10), "x": range(10)},
+            attrs={"description": "Test data", "units": "m"},
+        )
+        matrix = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+
+        result = transform.run(data, matrix)
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("y", "x")
+        assert result.shape == (10, 10)
+        assert result.attrs["description"] == "Test data"
+        assert result.attrs["units"] == "m"
+
+    def test_affine_transform_with_non_identity_matrix(self):
+        transform = XArrayAffineTransform()
+        values = np.random.rand(10, 10)
+        data = xr.DataArray(
+            values,
+            dims=["y", "x"],
+            coords={"y": range(10), "x": range(10)},
+        )
+        matrix = np.array([[1, 0, 2], [0, 1, 3], [0, 0, 1]])
+
+        result = transform.run(data, matrix)
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("y", "x")
+        assert result.shape == (10, 10)
+        # TODO: Check if the transformation is applied correctly
+        # expected_values = np.roll(np.roll(values, 2, axis=1), 3, axis=0)
+        # assert result.values == pytest.approx(expected_values)

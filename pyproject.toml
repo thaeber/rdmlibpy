@@ -11,20 +11,21 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0.0"
-pydantic = ">=2.5"
-pandas = ">=2.2"
-numpy = ">=1.26"
-pint-pandas = ">=0.7"
-python-dateutil = ">=2.8"
-tables = ">=3.9"
-omegaconf = ">=2.3"
 brukeropus = ">=1.1"
-xarray = ">=2024.10.0"
-pint-xarray = ">=0.4"
-netcdf4 = ">=1.7"
-h5netcdf = ">=1.4"
 dask = ">=2025.2"
 davislib = {git = "https://github.com/thaeber/davislib.git"}
+h5netcdf = ">=1.4"
+netcdf4 = ">=1.7"
+numpy = ">=1.26"
+omegaconf = ">=2.3"
+pandas = ">=2.2"
+pint-pandas = ">=0.7"
+pint-xarray = ">=0.4"
+pydantic = ">=2.5"
+python-dateutil = ">=2.8"
+scikit-image = ">=0.25"
+tables = ">=3.9"
+xarray = ">=2024.10.0"
 
 
 [tool.poetry.group.dev.dependencies]

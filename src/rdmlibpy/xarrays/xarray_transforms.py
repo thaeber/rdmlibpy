@@ -1,15 +1,15 @@
-from typing import Mapping
+from typing import Mapping, Optional
 
+import numpy as np
 import pint_xarray
 import xarray as xr
+import scipy.ndimage
+import skimage.transform
 from omegaconf import OmegaConf
 
 from ..process import Transform
 
-_ = pint_xarray.unit_registry
-
-
-_T = xr.DataArray | xr.Dataset
+_ = pint_xarray.__version__
 
 
 class XArrayTransform(Transform):
@@ -219,3 +219,57 @@ class XArrayStatisticsMean(XArrayTransform):
         """
         with self.keep_attrs():
             return source.mean(dim=dim, **kwargs)
+
+
+class XArrayAffineTransform(XArrayTransform):
+    name: str = 'xarray.affine.transform'
+    version: str = '1'
+
+    def run(self, source: xr.DataArray | xr.Dataset, matrix, **kwargs):
+        with self.keep_attrs():
+            return self.transform_image(
+                source,
+                transform=skimage.transform.AffineTransform(matrix),
+                **kwargs,
+            )
+
+    def transform_image(
+        self,
+        image: xr.DataArray | xr.Dataset,
+        transform: Optional[skimage.transform.AffineTransform] = None,
+        dims=('y', 'x'),
+    ) -> xr.DataArray:
+        new_x = transform([[x, 0] for x in image.x]).T[0]
+        new_y = transform([[0, y] for y in image.y]).T[1]
+        ndims = len(dims)
+
+        coords = np.dstack(np.meshgrid(new_x, new_y))
+        new_coords = transform.inverse(
+            coords.reshape(-1, 2)
+        )  # .reshape(da.shape+ (2,))
+
+        def _transform(arr: np.ndarray):
+            # print(arr.shape)
+            shape = arr.shape
+            out = np.empty(shape)
+            for index in np.ndindex(shape[:-ndims]):
+                out[tuple(index) + (...,)] = scipy.ndimage.map_coordinates(
+                    arr[index].T, new_coords.T, mode='nearest', cval=np.nan
+                ).reshape(arr.shape[-ndims:])
+
+            return out
+
+        result = xr.apply_ufunc(
+            _transform,
+            image,
+            input_core_dims=[dims],
+            output_core_dims=[dims],
+            on_missing_core_dim='copy',
+            dask='parallelized',
+            dask_gufunc_kwargs={
+                'meta': np.ones((1,) * len(image.dims)),
+                'allow_rechunk': True,
+            },
+        )
+        result = result.assign_coords(x=new_x, y=new_y)
+        return result
