@@ -9,7 +9,34 @@ from ..process import Transform
 _ = pint_xarray.unit_registry
 
 
-class XArrayUnits(Transform):
+_T = xr.DataArray | xr.Dataset
+
+
+class XArrayTransform(Transform):
+    keep_attributes: bool = True
+
+    class KeepAttributesContext:
+        def __init__(self, transform: 'XArrayTransform'):
+            self._previous_value = None
+            self.transform = transform
+
+        def __enter__(self):
+            self._previous_value = xr.get_options().get('keep_attrs', False)
+            xr.set_options(keep_attrs=self.transform.keep_attributes)
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            xr.set_options(keep_attrs=self._previous_value)
+
+    def keep_attrs(self):
+        """
+        Context manager to temporarily set the keep_attributes option for xarray
+        operations.
+        """
+        return self.KeepAttributesContext(self)
+
+
+class XArrayUnits(XArrayTransform):
     name: str = 'xarray.units'
     version: str = '1'
 
@@ -35,7 +62,7 @@ class XArrayUnits(Transform):
         return result
 
 
-class XArrayAttributes(Transform):
+class XArrayAttributes(XArrayTransform):
     """
     A transform class for setting attributes on an xarray DataArray or Dataset.
     This class provides functionality to update the attributes of an xarray
@@ -103,7 +130,7 @@ class XArrayAttributes(Transform):
         return source
 
 
-class XArraySqueeze(Transform):
+class XArraySqueeze(XArrayTransform):
     """
     XArraySqueeze is a transform that applies the `squeeze` operation to an xarray
     DataArray or Dataset.
@@ -147,7 +174,7 @@ class XArraySqueeze(Transform):
         return source.squeeze(dim=dim)
 
 
-class XArrayStatisticsMean(Transform):
+class XArrayStatisticsMean(XArrayTransform):
     """
     XArrayStatisticsMean is a transform that computes the mean along the
     specified dimension(s) of an xarray DataArray or Dataset.
@@ -190,4 +217,5 @@ class XArrayStatisticsMean(Transform):
         Returns:
             xr.DataArray | xr.Dataset: The xarray object with the mean computed.
         """
-        return source.mean(dim=dim, **kwargs)
+        with self.keep_attrs():
+            return source.mean(dim=dim, **kwargs)

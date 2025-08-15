@@ -122,6 +122,26 @@ class TestDataFrameUnits:
         else:
             assert da.x.pint.units == pint.Unit('1/cm')
 
+    def test_units_keeps_attributes(self):
+        transform = XArrayUnits()
+        data = xr.DataArray(
+            np.random.rand(10),
+            dims=["x"],
+            coords={"x": range(10)},
+            attrs={"description": "Test data"},
+        )
+
+        result = transform.run(data, units={"x": "1/cm", "units": "K"})
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("x",)
+        assert result.attrs["description"] == "Test data"
+        assert result.pint.units == pint.Unit("K")
+        if pint_xarray.__version__ <= "0.5":
+            assert pint.Unit(result.x.attrs["units"]) == pint.Unit("1/cm")
+        else:
+            assert result.x.pint.units == pint.Unit("1/cm")
+
 
 class TestDataFrameAttributes:
     def test_create(self):
@@ -263,6 +283,23 @@ class TestXArraySqueeze:
         assert result["var1"].shape == (10,)
         assert result["var2"].shape == (10,)
 
+    def test_squeeze_keeps_attributes(self):
+        transform = XArraySqueeze()
+        data = xr.DataArray(
+            np.random.rand(1, 10, 1),
+            dims=["x", "y", "z"],
+            coords={"x": [0], "y": range(10), "z": [0]},
+            attrs={"description": "Test data", "units": "kg"},
+        )
+
+        result = transform.run(data)
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("y",)
+        assert result.shape == (10,)
+        assert result.attrs["description"] == "Test data"
+        assert result.attrs["units"] == "kg"
+
 
 class TestXArrayStatisticsMean:
     def test_create_instance(self):
@@ -339,3 +376,57 @@ class TestXArrayStatisticsMean:
         assert result["var2"].shape == (10,)
         assert np.allclose(result["var1"].values, values1.mean(axis=0))
         assert np.allclose(result["var2"].values, values2.mean(axis=0))
+
+    def test_mean_keeps_attributes(self):
+        transform = XArrayStatisticsMean()
+        data = xr.DataArray(
+            np.random.rand(5, 10),
+            dims=["x", "y"],
+            coords={"x": range(5), "y": range(10)},
+            attrs={"description": "Test data", "units": "m/s"},
+        )
+
+        result = transform.run(data, dim="x")
+
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("y",)
+        assert result.shape == (10,)
+        assert np.allclose(result.values, data.values.mean(axis=0))
+        assert result.attrs["description"] == "Test data"
+        assert result.attrs["units"] == "m/s"
+
+    def test_mean_keeps_attributes_on_dataset(self):
+        transform = XArrayStatisticsMean()
+        values1 = np.random.rand(5, 10)
+        values2 = np.random.rand(5, 10)
+        data = xr.Dataset(
+            {
+                "var1": (
+                    ["x", "y"],
+                    values1,
+                    dict(description="Variable 1", xunits="m/s"),
+                ),
+                "var2": (
+                    ["x", "y"],
+                    values2,
+                    dict(description="Variable 2", xunits="s"),
+                ),
+            },
+            coords={"x": range(5), "y": range(10)},
+            attrs={"experiment": "Test Experiment", "date": "2024-04-15"},
+        )
+
+        result = transform.run(data, dim="x")
+
+        assert isinstance(result, xr.Dataset)
+        assert result.dims == {"y": 10}
+        assert result["var1"].shape == (10,)
+        assert result["var2"].shape == (10,)
+        assert np.allclose(result["var1"].values, values1.mean(axis=0))
+        assert np.allclose(result["var2"].values, values2.mean(axis=0))
+        assert result.attrs["experiment"] == "Test Experiment"
+        assert result.attrs["date"] == "2024-04-15"
+        assert result["var1"].attrs["description"] == "Variable 1"
+        assert result["var1"].attrs["xunits"] == "m/s"
+        assert result["var2"].attrs["description"] == "Variable 2"
+        assert result["var2"].attrs["xunits"] == "s"
