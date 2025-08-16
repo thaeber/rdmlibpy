@@ -83,7 +83,7 @@ class TestSelectRange:
             stop=10,
         )
 
-        assert len(da.dropna(dim='x')) == 6  # type: ignore
+        assert len(da) == 6  # type: ignore
         assert da.values == pytest.approx(np.arange(5, 11))
         assert da.x.values == pytest.approx(np.arange(5, 11))
 
@@ -106,7 +106,7 @@ class TestSelectRange:
             stop=10,
         )
 
-        assert len(ds.x.dropna(dim='x')) == 6  # type: ignore
+        assert len(ds.x) == 6  # type: ignore
         assert ds.some_data.values == pytest.approx(np.arange(5, 11))
         assert ds.other_data.values == pytest.approx(np.arange(5, 11))
         assert ds.x.values == pytest.approx(np.arange(5, 11))
@@ -124,7 +124,7 @@ class TestSelectRange:
             stop=10,
         )
 
-        assert len(da.dropna(dim='x')) == 11  # type: ignore
+        assert len(da) == 11  # type: ignore
         assert da.values == pytest.approx(np.arange(0, 11))
 
     def test_no_stop(self):
@@ -140,7 +140,7 @@ class TestSelectRange:
             stop=None,
         )
 
-        assert len(da.dropna(dim='x')) == 10  # type: ignore
+        assert len(da) == 10  # type: ignore
         assert da.values == pytest.approx(np.arange(10, 20))
 
     def test_no_start_no_stop(self):
