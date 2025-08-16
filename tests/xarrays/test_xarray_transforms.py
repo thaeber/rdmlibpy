@@ -281,7 +281,7 @@ class TestXArraySqueeze:
         result = transform.run(data)
 
         assert isinstance(result, xr.Dataset)
-        assert result.dims == {"y": 10}
+        assert result.sizes == {"y": 10}
         assert result["var1"].shape == (10,)
         assert result["var2"].shape == (10,)
 
@@ -373,7 +373,7 @@ class TestXArrayStatisticsMean:
         result = transform.run(data, dim="x")
 
         assert isinstance(result, xr.Dataset)
-        assert result.dims == {"y": 10}
+        assert result.sizes == {"y": 10}
         assert result["var1"].shape == (10,)
         assert result["var2"].shape == (10,)
         assert np.allclose(result["var1"].values, values1.mean(axis=0))
@@ -421,7 +421,7 @@ class TestXArrayStatisticsMean:
         result = transform.run(data, dim="x")
 
         assert isinstance(result, xr.Dataset)
-        assert result.dims == {"y": 10}
+        assert result.sizes == {"y": 10}
         assert result["var1"].shape == (10,)
         assert result["var2"].shape == (10,)
         assert np.allclose(result["var1"].values, values1.mean(axis=0))
@@ -474,7 +474,7 @@ class TestXArrayAffineTransform:
         result = transform.run(data, matrix)
 
         assert isinstance(result, xr.Dataset)
-        assert result.dims == {"y": 10, "x": 10}
+        assert result.sizes == {"y": 10, "x": 10}
         assert result["var1"].shape == (10, 10)
         assert result["var2"].shape == (10, 10)
         assert result["var1"].values == pytest.approx(values1)

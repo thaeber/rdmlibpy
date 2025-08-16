@@ -6,6 +6,7 @@ import xarray as xr
 
 from rdmlibpy.xarrays import XArraySelectTimespan
 from rdmlibpy.xarrays import XArraySelectRange
+from rdmlibpy.xarrays import XArraySelectVariable
 
 
 class TestSelectTimespan:
@@ -157,3 +158,58 @@ class TestSelectRange:
 
         assert len(da) == N  # type: ignore
         assert da.values == pytest.approx(np.arange(N))
+
+
+class TestSelectVariable:
+    def test_create_transform(self):
+        selector = XArraySelectVariable()
+
+        assert selector.name == 'xarray.select.variable'
+        assert selector.version == '1'
+        assert selector.keep_parent_attributes is False
+
+    def test_variable_found(self):
+        # create test data
+        source = xr.Dataset(
+            dict(
+                var1=('x', np.arange(10)),
+                var2=('x', np.arange(10, 20)),
+            ),
+            attrs=dict(global_attr="test_attr"),
+        )
+
+        transform = XArraySelectVariable()
+        result = transform.run(source, 'var1')
+
+        assert isinstance(result, xr.DataArray)
+        assert result.name == 'var1'
+        assert result.values == pytest.approx(np.arange(10))
+
+    def test_variable_not_found(self):
+        # create test data
+        source = xr.Dataset(
+            dict(
+                var1=('x', np.arange(10)),
+            )
+        )
+
+        transform = XArraySelectVariable()
+
+        with pytest.raises(ValueError, match="Variable 'var2' not found in source."):
+            transform.run(source, 'var2')
+
+    def test_keep_parent_attributes(self):
+        # create test data
+        source = xr.Dataset(
+            dict(
+                var1=('x', np.arange(10)),
+            ),
+            attrs=dict(global_attr="test_attr"),
+        )
+
+        transform = XArraySelectVariable()
+        transform.keep_parent_attributes = True
+        result = transform.run(source, 'var1')
+
+        assert isinstance(result, xr.DataArray)
+        assert result.attrs.get('global_attr') == "test_attr"

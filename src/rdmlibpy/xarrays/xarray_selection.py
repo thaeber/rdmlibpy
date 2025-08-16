@@ -52,3 +52,19 @@ class XArraySelectRange(Transform):
             return source
 
         return source.where(selector, drop=self.drop)
+
+
+class XArraySelectVariable(Transform):
+    name: str = 'xarray.select.variable'
+    version: str = '1'
+
+    keep_parent_attributes: bool = False  # keep attributes from the parent dataset
+
+    def run(self, source: xr.Dataset, variable: str):
+        if variable in source.data_vars:
+            result = source[variable]
+            if self.keep_parent_attributes:
+                result.attrs.update(source.attrs)
+            return result
+        else:
+            raise ValueError(f"Variable '{variable}' not found in source.")
