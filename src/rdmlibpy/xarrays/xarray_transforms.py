@@ -278,3 +278,12 @@ class XArrayAffineTransform(XArrayTransform):
         )
         result = result.assign_coords(x=new_x, y=new_y)
         return result
+
+
+class XArrayAssign(XArrayTransform):
+    name: str = 'xarray.assign'
+    version: str = '1'
+
+    def run(self, source: xr.Dataset, **kwargs):
+        with self.keep_attrs():
+            return source.assign(**kwargs)

@@ -10,6 +10,7 @@ from rdmlibpy.xarrays import XArrayAttributes, XArrayUnits
 from rdmlibpy.xarrays.xarray_transforms import XArraySqueeze
 from rdmlibpy.xarrays.xarray_transforms import XArrayStatisticsMean
 from rdmlibpy.xarrays.xarray_transforms import XArrayAffineTransform
+from rdmlibpy.xarrays.xarray_transforms import XArrayAssign
 
 _ = pint_xarray.unit_registry
 
@@ -516,3 +517,60 @@ class TestXArrayAffineTransform:
         # TODO: Check if the transformation is applied correctly
         # expected_values = np.roll(np.roll(values, 2, axis=1), 3, axis=0)
         # assert result.values == pytest.approx(expected_values)
+
+
+class TestXArrayAssign:
+    def test_create_instance(self):
+        transform = XArrayAssign()
+
+        assert transform.name == 'xarray.assign'
+        assert transform.version == '1'
+
+    def test_assign_new_variable_to_dataset(self):
+        transform = XArrayAssign()
+        data = xr.Dataset(
+            {
+                "var1": ("x", np.random.rand(10)),
+            },
+            coords={"x": range(10)},
+        )
+
+        result = transform.run(data, new_var=np.arange(10))
+
+        assert isinstance(result, xr.Dataset)
+        assert "new_var" in result.coords
+        assert np.array_equal(result.coords["new_var"], np.arange(10))
+
+    def test_assign_multiple_variables(self):
+        transform = XArrayAssign()
+        data = xr.Dataset(
+            {
+                "var1": ("x", np.random.rand(10)),
+            },
+            coords={"x": range(10)},
+        )
+
+        result = transform.run(data, var2=np.arange(10), var3=np.linspace(0, 1, 10))
+
+        assert isinstance(result, xr.Dataset)
+        assert "var2" in result
+        assert "var3" in result
+        assert np.array_equal(result["var2"], np.arange(10))
+        assert np.array_equal(result["var3"], np.linspace(0, 1, 10))
+
+    def test_assign_overwrites_existing_variable(self):
+        transform = XArrayAssign()
+        data = xr.Dataset(
+            {
+                "var1": ("x", np.random.rand(10)),
+            },
+            coords={"x": range(10)},
+        )
+
+        result = transform.run(
+            data, var1=xr.DataArray(np.arange(10), coords={"x": data.x})
+        )
+
+        assert isinstance(result, xr.Dataset)
+        assert "var1" in result
+        assert np.array_equal(result["var1"], np.arange(10))
