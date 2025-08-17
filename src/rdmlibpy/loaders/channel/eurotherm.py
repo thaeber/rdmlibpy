@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 
-from ...dataframes.io import DataFrameReadCSVBase, ParseDatesType
+from ...dataframes.dataframes_io import DataFrameReadCSVBase, ParseDatesType
 
 
 class ChannelEurothermLoggerLoader(DataFrameReadCSVBase):

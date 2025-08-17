@@ -1,7 +1,7 @@
 from ..registry import register
-from .io import DataFrameFileCache, DataFrameReadCSV, DataFrameWriteCSV
-from .selection import SelectColumns, SelectTimespan
-from .transforms import (
+from .dataframes_io import DataFrameFileCache, DataFrameReadCSV, DataFrameWriteCSV
+from .dataframes_selection import SelectColumns, SelectTimespan
+from .dataframe_transforms import (
     DataFrameAttributes,
     DataFrameFillNA,
     DataFrameInterpolate,

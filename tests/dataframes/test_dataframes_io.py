@@ -9,7 +9,7 @@ import pint_pandas
 
 from rdmlibpy.base import PlainProcessParam, ProcessNode
 from rdmlibpy.dataframes import DataFrameFileCache, DataFrameReadCSV, DataFrameWriteCSV
-from rdmlibpy.dataframes.io import quantify
+from rdmlibpy.dataframes.dataframes_io import quantify
 from rdmlibpy.process import DelegatedSource
 from omegaconf import OmegaConf
 
