@@ -67,6 +67,14 @@ class XArrayUnits(XArrayTransform):
         return result
 
 
+class XArrayUnitsDequantify(XArrayTransform):
+    name: str = 'xarray.units.dequantify'
+    version: str = '1'
+
+    def run(self, ds: xr.Dataset):
+        return ds.pint.dequantify()
+
+
 class XArrayAttributes(XArrayTransform):
     """
     A transform class for setting attributes on an xarray DataArray or Dataset.
