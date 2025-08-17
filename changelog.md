@@ -1,4 +1,39 @@
 <!-- insertion marker -->
+<a name="v0.2.23"></a>
+
+## [v0.2.23](https://github.com/thaeber/rdmlibpy/compare/v0.2.22...v0.2.23) (2025-08-17)
+
+### Bug Fixes
+
+- Explicitly pass `keep_attrs=True` to `Dataset.map` in range selection ([0ebff37](https://github.com/thaeber/rdmlibpy/commit/0ebff374ba0652fb65ba243b81db46b85d81b084))
+- Keep `DataArray` and `Dataset` attributes upon range selection ([15f8136](https://github.com/thaeber/rdmlibpy/commit/15f8136a7511130d8dab6643bf7395d11e308dc7))
+- Avoid dim expansion in unrelated variables for range selection ([734f104](https://github.com/thaeber/rdmlibpy/commit/734f10480ff56489b0b465e664ba64fc0e117601))
+- Remove internal `pint:quantify` attribute when loading cached data ([8df73d7](https://github.com/thaeber/rdmlibpy/commit/8df73d73734f85f803eec446e21643d3aac1ebe9))
+- Keep attributes in xarray transforms ([2d35c75](https://github.com/thaeber/rdmlibpy/commit/2d35c75562934f63990218f9c21b389c8f5b441a))
+
+### Features
+
+- Create `xarray.DataTree` ([40f9e42](https://github.com/thaeber/rdmlibpy/commit/40f9e42c0b26e45a6c220b7e267cada381ce3ba0))
+- Merge transform for `xarray.Dataset` ([fc93d21](https://github.com/thaeber/rdmlibpy/commit/fc93d2139cc5be340dfd3a2bbd2b6c5e6ce2b4fa))
+- Dequantify `xarray` objects with explicit units and move units to attributes ([69fd9e4](https://github.com/thaeber/rdmlibpy/commit/69fd9e437e80bd1b6364605dc687259707e309be))
+- By default `XarrayUnits` will now only set the `units` attribute ([743fc73](https://github.com/thaeber/rdmlibpy/commit/743fc73ed5a2755ba77a4d3459eecd875b22a97d))
+- Include data from another YAML file into the workflow ([8a557e9](https://github.com/thaeber/rdmlibpy/commit/8a557e9010b288add0cda8003caa21915fd7d667))
+- Convert `pandas.DataFrame` to `xarray.Dataset` ([5511bbe](https://github.com/thaeber/rdmlibpy/commit/5511bbec6f0814e3a476c197678935326dc70eaa))
+- Swap dimensions for `xarray.DataArray` and `xarray.Dataset` ([c195656](https://github.com/thaeber/rdmlibpy/commit/c1956564fbfa63902eae0bd584b0128bdb019e3c))
+- ScalarSource process node ([b06a067](https://github.com/thaeber/rdmlibpy/commit/b06a06794f35e110e833d8942928b6426bf459d9))
+- Add XArrayAssign transform with unit tests for variable assignment ([e160402](https://github.com/thaeber/rdmlibpy/commit/e1604028a9d8132d27e477f752129f8b7100dbed))
+- Add XArraySelectVariable transform ([109b76e](https://github.com/thaeber/rdmlibpy/commit/109b76e9eb6c66843f4876f8dc0291a9325c14ea))
+- Introduce XArraySelectRange and refactor XArraySelectTimespan for improved selection functionality ([e9567bb](https://github.com/thaeber/rdmlibpy/commit/e9567bbe1cdb80a22f32ce97e8cc49c28064f12c))
+- Enhance XArrayAffineTransform to accept optional matrix and dimensions ([32ee179](https://github.com/thaeber/rdmlibpy/commit/32ee1790680d5ea07dea59686065ae36165bc4ae))
+- Affine transform for `xarray` data array and dataset ([824e44a](https://github.com/thaeber/rdmlibpy/commit/824e44ab93a83135e7715e9840cceb448b0e064b))
+
+### Code Refactoring
+
+- Renamed files related to dataframes to follow the scheme `dataframes._[module].py` ([448f80a](https://github.com/thaeber/rdmlibpy/commit/448f80a7fede98986b12e268dcf2bde3746af84f))
+
+### Chore
+
+- pre-commit run --all ([39f60aa](https://github.com/thaeber/rdmlibpy/commit/39f60aad2ac065eb242075eace9c1739939316ef))
 
 <a name="v0.2.22"></a>
 
@@ -334,7 +369,7 @@
 - Renamed "target" parameter to "filename" ([33d31e3](https://github.com/thaeber/rdmlibpy/commit/33d31e3011b78ab4999d8e7d21d781e2cc0840c3))
 - Test for process id ([41203c0](https://github.com/thaeber/rdmlibpy/commit/41203c0169b2a6ce3ddf4a2c092b0566b29ed58c))
 - Fixed typo in "dataframe.cache" process id (#9) ([f6acb32](https://github.com/thaeber/rdmlibpy/commit/f6acb32ef7c1026d6a1f4c0f956605ec1fc72d64))
-- Renamed process to "dataframe.\[read|write\].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
+- Renamed process to "dataframe.[read|write].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
 - DataFrameWriteCSV.run() did not return input value (#7) ([a297aa0](https://github.com/thaeber/rdmlibpy/commit/a297aa03a556fca1684b20fc2cda6c26855834cd))
 
 ### Features
@@ -387,7 +422,7 @@
 
 ### Style
 
-- Renamed "select.\[columns|timespan\]" to "dataframe.select.\[columns|timespan\]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
+- Renamed "select.[columns|timespan]" to "dataframe.select.[columns|timespan]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
 
 <a name="v0.1.3"></a>
 
@@ -400,3 +435,4 @@
 <a name="v0.1.1"></a>
 
 ## [v0.1.1](https://github.com/thaeber/rdmlibpy/compare/b6e05adfa1b72a75295601854b5caaedc1876993...v0.1.1) (2024-04-01)
+
