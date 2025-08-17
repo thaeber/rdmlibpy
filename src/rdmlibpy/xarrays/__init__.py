@@ -13,12 +13,15 @@ from .xarray_transforms import (
     XArrayStatisticsMean,
     XArraySwapDims,
     XArrayUnits,
+    XArrayUnitsDequantify,
+    XArrayMerge,
 )
 
 register(XArrayAffineTransform())
 register(XArrayAssign())
 register(XArrayAttributes())
 register(XArrayFileCache())
+register(XArrayMerge())
 register(XArraySelectRange())
 register(XArraySelectTimespan())
 register(XArraySelectVariable())
@@ -26,3 +29,4 @@ register(XArraySqueeze())
 register(XArrayStatisticsMean())
 register(XArraySwapDims())
 register(XArrayUnits())
+register(XArrayUnitsDequantify())

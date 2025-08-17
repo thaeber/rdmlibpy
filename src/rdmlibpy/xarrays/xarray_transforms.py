@@ -309,3 +309,22 @@ class XArraySwapDims(XArrayTransform):
     def run(self, source: xr.DataArray | xr.Dataset, dims_dict=None, **dims_kwargs):
         with self.keep_attrs():
             return source.swap_dims(dims_dict, **dims_kwargs)
+
+
+class XArrayMerge(XArrayTransform):
+    name: str = 'xarray.merge'
+    version: str = '1'
+
+    interpolate: bool = False
+
+    def run(self, source: xr.Dataset, other: xr.Dataset | xr.DataArray):
+        with self.keep_attrs():
+            if self.interpolate:
+                other = other.interp_like(source)
+        return source.merge(
+            other,
+            compat='no_conflicts',
+            join='outer',
+            fill_value=np.nan,
+            combine_attrs='drop_conflicts',
+        )
