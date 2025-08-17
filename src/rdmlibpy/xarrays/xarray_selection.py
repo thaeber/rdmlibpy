@@ -64,7 +64,7 @@ class XArraySelectRange(Transform):
                     else:
                         return da
 
-                return source.map(select)
+                return source.map(select, keep_attrs=True)
             else:
                 raise TypeError("Source must be an xarray DataArray or Dataset.")
 

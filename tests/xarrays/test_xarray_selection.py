@@ -184,12 +184,13 @@ class TestSelectRange:
     def test_keep_dataset_attributes(self):
         # create test data
         N = 20
+        some_values = np.random.rand(4, N)
         source = xr.Dataset(
             dict(
-                some_data=('x', np.arange(N)),
+                some_data=(('y', 'x'), some_values),
                 other_data=('x', np.arange(N)),
             ),
-            coords=dict(x=np.arange(N)),
+            coords=dict(x=np.arange(N), y=np.arange(4)),
             attrs=dict(dataset_attr="dataset_value"),
         )
 
@@ -203,7 +204,7 @@ class TestSelectRange:
 
         assert len(ds.x) == 6  # type: ignore
         assert ds.attrs.get('dataset_attr') == "dataset_value"
-        assert ds.some_data.values == pytest.approx(np.arange(5, 11))
+        assert ds.some_data.values == pytest.approx(some_values[:, 5:11])
         assert ds.other_data.values == pytest.approx(np.arange(5, 11))
         assert ds.x.values == pytest.approx(np.arange(5, 11))
 
