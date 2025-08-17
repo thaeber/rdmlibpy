@@ -40,6 +40,8 @@ class XArrayUnits(XArrayTransform):
     name: str = 'xarray.units'
     version: str = '1'
 
+    quantify: bool = False
+
     def run(
         self,
         source: xr.DataArray | xr.Dataset,
@@ -59,6 +61,9 @@ class XArrayUnits(XArrayTransform):
             units_to_set.update(units)
 
         result = source.pint.quantify(**units_to_set)
+        if not self.quantify:
+            result = result.pint.dequantify()
+
         return result
 
 

@@ -23,6 +23,32 @@ class TestDataFrameUnits:
         assert transform.name == 'xarray.units'
         assert transform.version == '1'
 
+    def test_dataset_without_quantify(self, data_path: Path):
+        # create test data
+        N = 10
+        source = xr.Dataset(
+            dict(
+                A=('x', 2 * np.arange(N)),
+                B=('x', np.linspace(0, 1, N)),
+                C=('x', np.logspace(1, 2, N)),
+            ),
+            coords=dict(x=np.arange(10)),
+        )
+
+        transform = XArrayUnits()  # default quantify=False
+        ds = transform.run(
+            source,
+            units={
+                'A': 'K',
+                'B': 'm/s',
+                'x': '1/cm',
+            },
+        )
+        assert pint.Unit(ds.A.attrs['units']) == pint.Unit('K')
+        assert pint.Unit(ds.B.attrs['units']) == pint.Unit('m/s')
+        assert 'unit' not in ds.C.attrs
+        assert pint.Unit(ds.x.attrs['units']) == pint.Unit('1/cm')
+
     def test_dataset(self, data_path: Path):
         # create test data
         N = 10
@@ -35,7 +61,7 @@ class TestDataFrameUnits:
             coords=dict(x=np.arange(10)),
         )
 
-        transform = XArrayUnits()
+        transform = XArrayUnits(quantify=True)
         ds = transform.run(
             source,
             units={
@@ -64,7 +90,7 @@ class TestDataFrameUnits:
             coords=dict(x=np.arange(10)),
         )
 
-        transform = XArrayUnits()
+        transform = XArrayUnits(quantify=True)
         ds = transform.run(
             source,
             units={
@@ -90,7 +116,7 @@ class TestDataFrameUnits:
             coords=dict(x=np.arange(10)),
         )
 
-        transform = XArrayUnits()
+        transform = XArrayUnits(quantify=True)
         da = transform.run(
             source,
             units={
@@ -112,7 +138,7 @@ class TestDataFrameUnits:
             coords=dict(x=np.arange(10)),
         )
 
-        transform = XArrayUnits()
+        transform = XArrayUnits(quantify=True)
         da = transform.run(
             source,
             units={
@@ -127,7 +153,7 @@ class TestDataFrameUnits:
             assert da.x.pint.units == pint.Unit('1/cm')
 
     def test_units_keeps_attributes(self):
-        transform = XArrayUnits()
+        transform = XArrayUnits(quantify=True)
         data = xr.DataArray(
             np.random.rand(10),
             dims=["x"],
