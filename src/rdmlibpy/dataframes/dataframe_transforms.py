@@ -261,3 +261,14 @@ class DataFrameTimeOffset(Transform):
 
         # return modified dataframe
         return source
+
+
+class DataFrameToXArray(Transform):
+    name: str = 'dataframe.to_xarray'
+    version: str = '1'
+
+    def run(self, source: pd.DataFrame, index: None | str | List[str] = None):
+        if index is not None:
+            return source.set_index(index).to_xarray()
+        else:
+            return source.to_xarray()

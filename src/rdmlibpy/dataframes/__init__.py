@@ -9,19 +9,19 @@ from .dataframe_transforms import (
     DataFrameSetIndex,
     DataFrameTimeOffset,
     DataFrameUnits,
+    DataFrameToXArray,
 )
 
-register(DataFrameReadCSV())
-register(DataFrameWriteCSV())
-register(DataFrameFileCache())
-
 register(DataFrameAttributes())
+register(DataFrameFileCache())
 register(DataFrameFillNA())
 register(DataFrameInterpolate())
 register(DataFrameJoin())
+register(DataFrameReadCSV())
 register(DataFrameSetIndex())
 register(DataFrameTimeOffset())
+register(DataFrameToXArray())
 register(DataFrameUnits())
-
+register(DataFrameWriteCSV())
 register(SelectColumns())
 register(SelectTimespan())

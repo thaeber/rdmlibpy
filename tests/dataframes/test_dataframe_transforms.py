@@ -4,14 +4,16 @@ import numpy as np
 import pandas as pd
 import pandas._testing as tm
 import pint_pandas
-
 import pytest
+import xarray as xr
+
 from rdmlibpy.dataframes import (
     DataFrameAttributes,
     DataFrameFillNA,
     DataFrameJoin,
     DataFrameSetIndex,
     DataFrameTimeOffset,
+    DataFrameToXArray,
     DataFrameUnits,
 )
 from rdmlibpy.loaders import ChannelTCLoggerLoader
@@ -483,3 +485,59 @@ class TestDataFrameTimeOffset:
         df = DataFrameTimeOffset().run(source, column='timestamp')
 
         assert df is source
+
+
+class TestDataFrameToXArray:
+    def test_create_instance(self):
+        transform = DataFrameToXArray()
+
+        assert transform.name == 'dataframe.to_xarray'
+        assert transform.version == '1'
+
+    def test_run_with_index(self):
+        transform = DataFrameToXArray()
+        df = pd.DataFrame(
+            {
+                'A': [1, 2, 3],
+                'B': [4, 5, 6],
+                'C': [7, 8, 9],
+            }
+        )
+
+        result = transform.run(df, index=['A'])
+        assert isinstance(result, xr.Dataset)
+        assert list(result.dims) == ['A']
+        assert list(result.data_vars) == ['B', 'C']
+        assert np.array_equal(result['B'].values, [4, 5, 6])
+        assert np.array_equal(result['C'].values, [7, 8, 9])
+
+    def test_run_without_index(self):
+        transform = DataFrameToXArray()
+        df = pd.DataFrame(
+            {
+                'A': [1, 2, 3],
+                'B': [4, 5, 6],
+                'C': [7, 8, 9],
+            }
+        )
+
+        result = transform.run(df)
+        assert isinstance(result, xr.Dataset)
+        assert list(result.dims) == ['index']
+        assert list(result.data_vars) == ['A', 'B', 'C']
+        assert np.array_equal(result['A'].values, [1, 2, 3])
+        assert np.array_equal(result['B'].values, [4, 5, 6])
+        assert np.array_equal(result['C'].values, [7, 8, 9])
+
+    def test_run_with_invalid_index(self):
+        transform = DataFrameToXArray()
+        df = pd.DataFrame(
+            {
+                'A': [1, 2, 3],
+                'B': [4, 5, 6],
+                'C': [7, 8, 9],
+            }
+        )
+
+        with pytest.raises(KeyError):
+            transform.run(df, index=['D'])
