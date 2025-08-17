@@ -287,3 +287,12 @@ class XArrayAssign(XArrayTransform):
     def run(self, source: xr.Dataset, **kwargs):
         with self.keep_attrs():
             return source.assign(**kwargs)
+
+
+class XArraySwapDims(XArrayTransform):
+    name: str = 'xarray.swap_dims'
+    version: str = '1'
+
+    def run(self, source: xr.DataArray | xr.Dataset, dims_dict=None, **dims_kwargs):
+        with self.keep_attrs():
+            return source.swap_dims(dims_dict, **dims_kwargs)

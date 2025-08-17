@@ -11,6 +11,7 @@ from rdmlibpy.xarrays.xarray_transforms import XArraySqueeze
 from rdmlibpy.xarrays.xarray_transforms import XArrayStatisticsMean
 from rdmlibpy.xarrays.xarray_transforms import XArrayAffineTransform
 from rdmlibpy.xarrays.xarray_transforms import XArrayAssign
+from rdmlibpy.xarrays.xarray_transforms import XArraySwapDims
 
 _ = pint_xarray.unit_registry
 
@@ -574,3 +575,82 @@ class TestXArrayAssign:
         assert isinstance(result, xr.Dataset)
         assert "var1" in result
         assert np.array_equal(result["var1"], np.arange(10))
+
+
+class TestXArraySwapDims:
+    def test_create_instance(self):
+        transform = XArraySwapDims()
+
+        assert transform.name == 'xarray.swap_dims'
+        assert transform.version == '1'
+
+    def test_swap_single_dimension(self):
+        transform = XArraySwapDims()
+        data = xr.Dataset(
+            {
+                'var1': (['time', 'x'], np.random.rand(5, 10)),
+            },
+            coords={'time': range(5), 'x': range(10), 'new_time': ('time', range(5))},
+        )
+
+        result = transform.run(data, time='new_time')
+
+        assert isinstance(result, xr.Dataset)
+        assert 'new_time' in result.dims
+        assert 'time' not in result.dims
+        assert result['var1'].dims == ('new_time', 'x')
+
+    def test_swap_multiple_dimensions(self):
+        transform = XArraySwapDims()
+        data = xr.Dataset(
+            {
+                'var1': (['time', 'x'], np.random.rand(5, 10)),
+            },
+            coords={
+                'time': range(5),
+                'x': range(10),
+                'new_time': ('time', range(5)),
+                'new_x': ('x', range(10)),
+            },
+        )
+
+        result = transform.run(data, {'time': 'new_time', 'x': 'new_x'})
+
+        assert isinstance(result, xr.Dataset)
+        assert 'new_time' in result.dims
+        assert 'new_x' in result.dims
+        assert 'time' not in result.dims
+        assert 'x' not in result.dims
+        assert result['var1'].dims == ('new_time', 'new_x')
+
+    def test_swap_keeps_attributes(self):
+        transform = XArraySwapDims()
+        data = xr.Dataset(
+            {
+                'var1': (['time', 'x'], np.random.rand(5, 10)),
+            },
+            coords={'time': range(5), 'x': range(10), 'new_time': ('time', range(5))},
+            attrs={'description': 'Test dataset'},
+        )
+
+        result = transform.run(data, time='new_time')
+
+        assert isinstance(result, xr.Dataset)
+        assert 'new_time' in result.dims
+        assert 'time' not in result.dims
+        assert result.attrs['description'] == 'Test dataset'
+
+    def test_swap_on_dataarray(self):
+        transform = XArraySwapDims()
+        data = xr.DataArray(
+            np.random.rand(5, 10),
+            dims=['time', 'x'],
+            coords={'time': range(5), 'x': range(10), 'new_time': ('time', range(5))},
+        )
+
+        result = transform.run(data, time='new_time')
+
+        assert isinstance(result, xr.DataArray)
+        assert 'new_time' in result.dims
+        assert 'time' not in result.dims
+        assert result.dims == ('new_time', 'x')

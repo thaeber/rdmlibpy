@@ -11,6 +11,7 @@ from .xarray_transforms import (
     XArrayAttributes,
     XArraySqueeze,
     XArrayStatisticsMean,
+    XArraySwapDims,
     XArrayUnits,
 )
 
@@ -23,4 +24,5 @@ register(XArraySelectTimespan())
 register(XArraySelectVariable())
 register(XArraySqueeze())
 register(XArrayStatisticsMean())
+register(XArraySwapDims())
 register(XArrayUnits())
