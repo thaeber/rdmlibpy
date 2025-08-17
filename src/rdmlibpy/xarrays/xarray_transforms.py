@@ -328,3 +328,29 @@ class XArrayMerge(XArrayTransform):
             fill_value=np.nan,
             combine_attrs='drop_conflicts',
         )
+
+
+class XArrayCreateDataTree(XArrayTransform):
+    name: str = 'xarray.create.data_tree'
+    version: str = '1'
+
+    interpolate: bool = False
+
+    def run(
+        self,
+        root: xr.Dataset,
+        groups: dict[str, xr.Dataset] | None = None,
+        **groups_kwargs: xr.Dataset
+    ):
+        _groups = {'./': root}
+
+        def interpolate_if_needed(ds: dict[str, xr.Dataset]) -> dict[str, xr.Dataset]:
+            if self.interpolate:
+                return {k: v.interp_like(root) for k, v in ds.items()}
+            return ds
+
+        if groups is not None:
+            _groups.update(interpolate_if_needed(groups))
+        _groups.update(interpolate_if_needed(groups_kwargs))
+
+        return xr.DataTree.from_dict(_groups)

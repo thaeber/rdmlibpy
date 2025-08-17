@@ -9,17 +9,19 @@ from .xarray_transforms import (
     XArrayAffineTransform,
     XArrayAssign,
     XArrayAttributes,
+    XArrayCreateDataTree,
+    XArrayMerge,
     XArraySqueeze,
     XArrayStatisticsMean,
     XArraySwapDims,
     XArrayUnits,
     XArrayUnitsDequantify,
-    XArrayMerge,
 )
 
 register(XArrayAffineTransform())
 register(XArrayAssign())
 register(XArrayAttributes())
+register(XArrayCreateDataTree())
 register(XArrayFileCache())
 register(XArrayMerge())
 register(XArraySelectRange())
