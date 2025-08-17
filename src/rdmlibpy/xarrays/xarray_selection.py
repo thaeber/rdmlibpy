@@ -2,6 +2,7 @@ import numpy as np
 import xarray as xr
 
 from ..process import Transform
+from .xarray_utils import KeepAttributesContext
 
 
 def parse(time):
@@ -31,7 +32,8 @@ class XArraySelectTimespan(Transform):
         else:
             return source
 
-        return source.where(selector, drop=self.drop)
+        with KeepAttributesContext():
+            return source.where(selector, drop=self.drop)
 
 
 class XArraySelectRange(Transform):
@@ -51,19 +53,20 @@ class XArraySelectRange(Transform):
         else:
             return source
 
-        if isinstance(source, xr.DataArray):
-            return source.where(selector, drop=self.drop)
-        elif isinstance(source, xr.Dataset):
+        with KeepAttributesContext():
+            if isinstance(source, xr.DataArray):
+                return source.where(selector, drop=self.drop)
+            elif isinstance(source, xr.Dataset):
 
-            def select(da: xr.DataArray):
-                if set(selector.dims).issubset(da.dims):
-                    return da.where(selector, drop=self.drop)
-                else:
-                    return da
+                def select(da: xr.DataArray):
+                    if set(selector.dims).issubset(da.dims):
+                        return da.where(selector, drop=self.drop)
+                    else:
+                        return da
 
-            return source.map(select)
-        else:
-            raise TypeError("Source must be an xarray DataArray or Dataset.")
+                return source.map(select)
+            else:
+                raise TypeError("Source must be an xarray DataArray or Dataset.")
 
 
 class XArraySelectVariable(Transform):

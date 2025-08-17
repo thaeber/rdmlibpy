@@ -159,6 +159,83 @@ class TestSelectRange:
         assert len(da) == N  # type: ignore
         assert da.values == pytest.approx(np.arange(N))
 
+    def test_keep_attributes(self):
+        # create test data
+        N = 20
+        source = xr.DataArray(
+            np.arange(N),
+            coords=dict(x=np.arange(N)),
+            attrs=dict(test_attr="test_value"),
+        )
+
+        transform = XArraySelectRange()
+        da = transform.run(
+            source,
+            'x',
+            start=5,
+            stop=10,
+        )
+
+        assert len(da) == 6  # type: ignore
+        assert da.values == pytest.approx(np.arange(5, 11))
+        assert da.x.values == pytest.approx(np.arange(5, 11))
+        assert da.attrs.get('test_attr') == "test_value"
+
+    def test_keep_dataset_attributes(self):
+        # create test data
+        N = 20
+        source = xr.Dataset(
+            dict(
+                some_data=('x', np.arange(N)),
+                other_data=('x', np.arange(N)),
+            ),
+            coords=dict(x=np.arange(N)),
+            attrs=dict(dataset_attr="dataset_value"),
+        )
+
+        transform = XArraySelectRange()
+        ds = transform.run(
+            source,
+            'x',
+            start=5,
+            stop=10,
+        )
+
+        assert len(ds.x) == 6  # type: ignore
+        assert ds.attrs.get('dataset_attr') == "dataset_value"
+        assert ds.some_data.values == pytest.approx(np.arange(5, 11))
+        assert ds.other_data.values == pytest.approx(np.arange(5, 11))
+        assert ds.x.values == pytest.approx(np.arange(5, 11))
+
+    def test_keep_dataarray_attributes_in_dataset(self):
+        # create test data
+        N = 20
+        source = xr.Dataset(
+            dict(
+                some_data=(
+                    'x',
+                    np.arange(N),
+                    dict(dataarray_attr="dataarray_value"),
+                ),
+                other_data=('x', np.arange(N)),
+            ),
+            coords=dict(x=np.arange(N)),
+        )
+
+        transform = XArraySelectRange()
+        ds = transform.run(
+            source,
+            'x',
+            start=5,
+            stop=10,
+        )
+
+        assert len(ds.x) == 6  # type: ignore
+        assert ds.some_data.attrs.get('dataarray_attr') == "dataarray_value"
+        assert ds.some_data.values == pytest.approx(np.arange(5, 11))
+        assert ds.other_data.values == pytest.approx(np.arange(5, 11))
+        assert ds.x.values == pytest.approx(np.arange(5, 11))
+
 
 class TestSelectVariable:
     def test_create_transform(self):
