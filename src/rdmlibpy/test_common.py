@@ -1,4 +1,3 @@
-import pytest
 from rdmlibpy.common import ScalarSource
 
 
