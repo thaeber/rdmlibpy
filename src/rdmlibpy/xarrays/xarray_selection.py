@@ -69,6 +69,25 @@ class XArraySelectRange(Transform):
                 raise TypeError("Source must be an xarray DataArray or Dataset.")
 
 
+class XArraySelectIndexRange(Transform):
+    name: str = 'xarray.select.index_range'
+    version: str = '1'
+
+    def run(self, source: xr.DataArray | xr.Dataset, dim: str, start=None, stop=None):
+        values = source[dim]
+        if (start is not None) and (stop is not None):
+            selector = slice(start, stop)
+        elif (start is None) and (stop is not None):
+            selector = slice(None, stop)
+        elif (start is not None) and (stop is None):
+            selector = slice(start, None)
+        else:
+            return source
+
+        with KeepAttributesContext():
+            return source.isel({dim: selector})
+
+
 class XArraySelectVariable(Transform):
     name: str = 'xarray.select.variable'
     version: str = '1'

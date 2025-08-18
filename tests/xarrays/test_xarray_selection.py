@@ -7,6 +7,7 @@ import xarray as xr
 from rdmlibpy.xarrays import XArraySelectTimespan
 from rdmlibpy.xarrays import XArraySelectRange
 from rdmlibpy.xarrays import XArraySelectVariable
+from rdmlibpy.xarrays import XArraySelectIndexRange
 
 
 class TestSelectTimespan:
@@ -291,3 +292,102 @@ class TestSelectVariable:
 
         assert isinstance(result, xr.DataArray)
         assert result.attrs.get('global_attr') == "test_attr"
+
+
+class TestSelectIndexRange:
+    def test_create_transform(self):
+
+        selector = XArraySelectIndexRange()
+
+        assert selector.name == 'xarray.select.index_range'
+        assert selector.version == '1'
+
+    def test_index_range(self):
+        # create test data
+        N = 20
+        source = xr.DataArray(15 + np.arange(N), coords=dict(x=10 + np.arange(N)))
+
+        transform = XArraySelectIndexRange()
+        da = transform.run(
+            source,
+            'x',
+            start=5,
+            stop=10,
+        )
+
+        assert len(da) == 5  # type: ignore
+        assert da.values == pytest.approx(15 + np.arange(5, 10))
+        assert da.x.values == pytest.approx(10 + np.arange(5, 10))
+
+    def test_no_start(self):
+        # create test data
+        N = 20
+        source = xr.DataArray(np.arange(N), coords=dict(x=np.arange(N)))
+
+        transform = XArraySelectIndexRange()
+        da = transform.run(
+            source,
+            'x',
+            start=None,
+            stop=10,
+        )
+
+        assert len(da) == 10  # type: ignore
+        assert da.values == pytest.approx(np.arange(0, 10))
+        assert da.x.values == pytest.approx(np.arange(0, 10))
+
+    def test_no_stop(self):
+        # create test data
+        N = 20
+        source = xr.DataArray(np.arange(N), coords=dict(x=np.arange(N)))
+
+        transform = XArraySelectIndexRange()
+        da = transform.run(
+            source,
+            'x',
+            start=10,
+            stop=None,
+        )
+
+        assert len(da) == 10  # type: ignore
+        assert da.values == pytest.approx(np.arange(10, 20))
+        assert da.x.values == pytest.approx(np.arange(10, 20))
+
+    def test_no_start_no_stop(self):
+        # create test data
+        N = 20
+        source = xr.DataArray(np.arange(N), coords=dict(x=np.arange(N)))
+
+        transform = XArraySelectIndexRange()
+        da = transform.run(
+            source,
+            'x',
+            start=None,
+            stop=None,
+        )
+
+        assert len(da) == N  # type: ignore
+        assert da.values == pytest.approx(np.arange(N))
+        assert da.x.values == pytest.approx(np.arange(N))
+
+    def test_keep_attributes(self):
+        # create test data
+        N = 20
+        source = xr.DataArray(
+            np.arange(N),
+            coords=dict(x=np.arange(N)),
+            attrs=dict(test_attr="test_value"),
+        )
+
+        transform = XArraySelectIndexRange()
+        da = transform.run(
+            source,
+            'x',
+            start=5,
+            stop=10,
+        )
+
+        assert len(da) == 5  # type: ignore
+        assert da.values == pytest.approx(np.arange(5, 10))
+        assert da.x.values == pytest.approx(np.arange(5, 10))
+        assert da.attrs.get('test_attr') == "test_value"

@@ -1,6 +1,7 @@
 from ..registry import register
 from .xarray_io import XArrayFileCache
 from .xarray_selection import (
+    XArraySelectIndexRange,
     XArraySelectRange,
     XArraySelectTimespan,
     XArraySelectVariable,
@@ -24,6 +25,7 @@ register(XArrayAttributes())
 register(XArrayCreateDataTree())
 register(XArrayFileCache())
 register(XArrayMerge())
+register(XArraySelectIndexRange())
 register(XArraySelectRange())
 register(XArraySelectTimespan())
 register(XArraySelectVariable())
