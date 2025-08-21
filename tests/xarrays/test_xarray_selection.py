@@ -296,7 +296,6 @@ class TestSelectVariable:
 
 class TestSelectIndexRange:
     def test_create_transform(self):
-
         selector = XArraySelectIndexRange()
 
         assert selector.name == 'xarray.select.index_range'

@@ -74,7 +74,7 @@ class XArraySelectIndexRange(Transform):
     version: str = '1'
 
     def run(self, source: xr.DataArray | xr.Dataset, dim: str, start=None, stop=None):
-        values = source[dim]
+        source[dim]
         if (start is not None) and (stop is not None):
             selector = slice(start, stop)
         elif (start is None) and (stop is not None):
