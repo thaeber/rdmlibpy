@@ -1,5 +1,18 @@
 <!-- insertion marker -->
 
+<a name="v0.2.24"></a>
+
+## [v0.2.24](https://github.com/thaeber/rdmlibpy/compare/v0.2.23...v0.2.24) (2025-08-21)
+
+### Features
+
+- Allows configuration of the merge method for attributes. ([c4111cb](https://github.com/thaeber/rdmlibpy/commit/c4111cb43cfd4f8bf8dc91a1ac01a67c9cd4e8fd))
+- Select index range of `xarray` data structures ([e01da7a](https://github.com/thaeber/rdmlibpy/commit/e01da7a88cc835d54a99513357fc16b5c75fbfc7))
+
+### Chore
+
+- pre-commit run --all ([47fb700](https://github.com/thaeber/rdmlibpy/commit/47fb700c79f6b5d415a60eb3181ca37822f94033))
+
 <a name="v0.2.23"></a>
 
 ## [v0.2.23](https://github.com/thaeber/rdmlibpy/compare/v0.2.22...v0.2.23) (2025-08-17)
