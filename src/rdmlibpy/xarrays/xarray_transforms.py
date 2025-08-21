@@ -1,4 +1,4 @@
-from typing import Mapping, Optional
+from typing import Literal, Mapping, Optional
 
 import numpy as np
 import pint_xarray
@@ -316,6 +316,7 @@ class XArrayMerge(XArrayTransform):
     version: str = '1'
 
     interpolate: bool = False
+    combine_attrs: Literal['drop', 'identical', 'no_conflicts', 'override'] = 'override'
 
     def run(self, source: xr.Dataset, other: xr.Dataset | xr.DataArray):
         with self.keep_attrs():
@@ -326,7 +327,7 @@ class XArrayMerge(XArrayTransform):
             compat='no_conflicts',
             join='outer',
             fill_value=np.nan,
-            combine_attrs='drop_conflicts',
+            combine_attrs=self.combine_attrs,
         )
 
 
