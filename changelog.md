@@ -1,4 +1,11 @@
 <!-- insertion marker -->
+<a name="v0.2.25"></a>
+
+## [v0.2.25](https://github.com/thaeber/rdmlibpy/compare/v0.2.24...v0.2.25) (2025-08-23)
+
+### Features
+
+- Accept coordinate for interpolation when merging `xarray` objects ([f7b1be8](https://github.com/thaeber/rdmlibpy/commit/f7b1be8ebf36e052c2aa8e333fe217c17231e398))
 
 <a name="v0.2.24"></a>
 
@@ -383,7 +390,7 @@
 - Renamed "target" parameter to "filename" ([33d31e3](https://github.com/thaeber/rdmlibpy/commit/33d31e3011b78ab4999d8e7d21d781e2cc0840c3))
 - Test for process id ([41203c0](https://github.com/thaeber/rdmlibpy/commit/41203c0169b2a6ce3ddf4a2c092b0566b29ed58c))
 - Fixed typo in "dataframe.cache" process id (#9) ([f6acb32](https://github.com/thaeber/rdmlibpy/commit/f6acb32ef7c1026d6a1f4c0f956605ec1fc72d64))
-- Renamed process to "dataframe.\[read|write\].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
+- Renamed process to "dataframe.[read|write].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
 - DataFrameWriteCSV.run() did not return input value (#7) ([a297aa0](https://github.com/thaeber/rdmlibpy/commit/a297aa03a556fca1684b20fc2cda6c26855834cd))
 
 ### Features
@@ -436,7 +443,7 @@
 
 ### Style
 
-- Renamed "select.\[columns|timespan\]" to "dataframe.select.\[columns|timespan\]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
+- Renamed "select.[columns|timespan]" to "dataframe.select.[columns|timespan]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
 
 <a name="v0.1.3"></a>
 
@@ -449,3 +456,4 @@
 <a name="v0.1.1"></a>
 
 ## [v0.1.1](https://github.com/thaeber/rdmlibpy/compare/b6e05adfa1b72a75295601854b5caaedc1876993...v0.1.1) (2024-04-01)
+
