@@ -316,12 +316,18 @@ class XArrayMerge(XArrayTransform):
     version: str = '1'
 
     interpolate: bool = False
+    interpolate_on: Optional[str] = None
     combine_attrs: Literal['drop', 'identical', 'no_conflicts', 'override'] = 'override'
 
     def run(self, source: xr.Dataset, other: xr.Dataset | xr.DataArray):
         with self.keep_attrs():
             if self.interpolate:
-                other = other.interp_like(source)
+                if self.interpolate_on is None:
+                    other = other.interp_like(source)
+                else:
+                    other = other.interp(
+                        {self.interpolate_on: source[self.interpolate_on]}
+                    )
         return source.merge(
             other,
             compat='no_conflicts',

@@ -12,6 +12,7 @@ from rdmlibpy.xarrays.xarray_transforms import XArrayStatisticsMean
 from rdmlibpy.xarrays.xarray_transforms import XArrayAffineTransform
 from rdmlibpy.xarrays.xarray_transforms import XArrayAssign
 from rdmlibpy.xarrays.xarray_transforms import XArraySwapDims
+from rdmlibpy.xarrays.xarray_transforms import XArrayMerge
 
 _ = pint_xarray.unit_registry
 
@@ -680,3 +681,105 @@ class TestXArraySwapDims:
         assert 'new_time' in result.dims
         assert 'time' not in result.dims
         assert result.dims == ('new_time', 'x')
+
+
+class TestXArrayMerge:
+    def test_create_instance(self):
+        transform = XArrayMerge()
+
+        assert transform.name == 'xarray.merge'
+        assert transform.version == '1'
+
+    def test_merge_datasets(self):
+        transform = XArrayMerge()
+        ds1 = xr.Dataset(
+            {"var1": ("x", [1, 2, 3])},
+            coords={"x": [0, 1, 2]},
+        )
+        ds2 = xr.Dataset(
+            {"var2": ("x", [4, 5, 6])},
+            coords={"x": [0, 1, 2]},
+        )
+
+        result = transform.run(ds1, ds2)
+
+        assert isinstance(result, xr.Dataset)
+        assert "var1" in result
+        assert "var2" in result
+        assert result["var1"].values.tolist() == [1, 2, 3]
+        assert result["var2"].values.tolist() == [4, 5, 6]
+
+    def test_merge_with_conflicting_attributes(self):
+        transform = XArrayMerge(combine_attrs="override")
+        ds1 = xr.Dataset(
+            {"var1": ("x", [1, 2, 3])},
+            coords={"x": [0, 1, 2]},
+            attrs={"description": "Dataset 1"},
+        )
+        ds2 = xr.Dataset(
+            {"var2": ("x", [4, 5, 6])},
+            coords={"x": [0, 1, 2]},
+            attrs={"description": "Dataset 2"},
+        )
+
+        result = transform.run(ds1, ds2)
+
+        assert isinstance(result, xr.Dataset)
+        assert result.attrs["description"] == "Dataset 1"
+
+    def test_merge_with_interpolation(self):
+        transform = XArrayMerge(interpolate=True)
+        ds1 = xr.Dataset(
+            {"var1": ("x", [1, 2, 3])},
+            coords={"x": [0, 1, 2]},
+        )
+        ds2 = xr.Dataset(
+            {"var2": ("x", [4, 5])},
+            coords={"x": [0, 2]},
+        )
+
+        result = transform.run(ds1, ds2)
+
+        assert isinstance(result, xr.Dataset)
+        assert "var1" in result
+        assert "var2" in result
+        assert result["var2"].values.tolist() == [4, 4.5, 5]
+
+    def test_merge_with_interpolation_on_specific_coordinate(self):
+        transform = XArrayMerge(interpolate=True, interpolate_on="x")
+        ds1 = xr.Dataset(
+            {"var1": ("x", [1, 2, 3])},
+            coords={"x": [0, 1, 2]},
+        )
+        ds2 = xr.Dataset(
+            {"var2": ("x", [4, 5])},
+            coords={"x": [0, 2]},
+        )
+
+        result = transform.run(ds1, ds2)
+
+        assert isinstance(result, xr.Dataset)
+        assert "var1" in result
+        assert "var2" in result
+        assert result["var2"].values.tolist() == [4, 4.5, 5]
+
+    def test_merge_without_interpolation(self):
+        transform = XArrayMerge(interpolate=False)
+        ds1 = xr.Dataset(
+            {"var1": ("x", [1, 2, 3])},
+            coords={"x": [0, 1, 2]},
+        )
+        ds2 = xr.Dataset(
+            {"var2": ("x", [4, 5])},
+            coords={"x": [0, 2]},
+        )
+
+        result = transform.run(ds1, ds2)
+
+        assert isinstance(result, xr.Dataset)
+        assert "var1" in result
+        assert "var2" in result
+
+        assert result["var2"].values.tolist() == pytest.approx(
+            [4.0, np.nan, 5.0], nan_ok=True
+        )
