@@ -1,4 +1,4 @@
-from typing import Literal, Mapping, Optional
+from typing import List, Literal, Mapping, Optional
 
 import numpy as np
 import pint_xarray
@@ -309,6 +309,15 @@ class XArraySwapDims(XArrayTransform):
     def run(self, source: xr.DataArray | xr.Dataset, dims_dict=None, **dims_kwargs):
         with self.keep_attrs():
             return source.swap_dims(dims_dict, **dims_kwargs)
+
+
+class XArraySetCoords(XArrayTransform):
+    name: str = 'xarray.set_coords'
+    version: str = '1'
+
+    def run(self, source: xr.Dataset, coords: str | List[str]):
+        with self.keep_attrs():
+            return source.set_coords(coords)
 
 
 class XArrayMerge(XArrayTransform):

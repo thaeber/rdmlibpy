@@ -12,6 +12,7 @@ from .xarray_transforms import (
     XArrayAttributes,
     XArrayCreateDataTree,
     XArrayMerge,
+    XArraySetCoords,
     XArraySqueeze,
     XArrayStatisticsMean,
     XArraySwapDims,
@@ -29,6 +30,7 @@ register(XArraySelectIndexRange())
 register(XArraySelectRange())
 register(XArraySelectTimespan())
 register(XArraySelectVariable())
+register(XArraySetCoords())
 register(XArraySqueeze())
 register(XArrayStatisticsMean())
 register(XArraySwapDims())

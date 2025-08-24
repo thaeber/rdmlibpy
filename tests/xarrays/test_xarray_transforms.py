@@ -13,6 +13,7 @@ from rdmlibpy.xarrays.xarray_transforms import XArrayAffineTransform
 from rdmlibpy.xarrays.xarray_transforms import XArrayAssign
 from rdmlibpy.xarrays.xarray_transforms import XArraySwapDims
 from rdmlibpy.xarrays.xarray_transforms import XArrayMerge
+from rdmlibpy.xarrays.xarray_transforms import XArraySetCoords
 
 _ = pint_xarray.unit_registry
 
@@ -681,6 +682,70 @@ class TestXArraySwapDims:
         assert 'new_time' in result.dims
         assert 'time' not in result.dims
         assert result.dims == ('new_time', 'x')
+
+
+class TestXArraySetCoords:
+    def test_create_instance(self):
+        transform = XArraySetCoords()
+
+        assert transform.name == 'xarray.set_coords'
+        assert transform.version == '1'
+
+    def test_set_single_coord(self):
+        transform = XArraySetCoords()
+        data = xr.Dataset(
+            {
+                "var1": ("x", [1, 2, 3]),
+                "y": ("x", [10, 20, 30]),
+            },
+            coords={
+                "x": [0, 1, 2],
+            },
+        )
+
+        result = transform.run(data, coords="y")
+
+        assert isinstance(result, xr.Dataset)
+        assert "y" in result.coords
+        assert result["y"].values.tolist() == [10, 20, 30]
+
+    def test_set_multiple_coords(self):
+        transform = XArraySetCoords()
+        data = xr.Dataset(
+            {
+                "var1": ("x", [1, 2, 3]),
+                "y": ("x", [10, 20, 30]),
+                "z": ("x", [100, 200, 300]),
+            },
+            coords={
+                "x": [0, 1, 2],
+            },
+        )
+
+        result = transform.run(data, coords=["y", "z"])
+
+        assert isinstance(result, xr.Dataset)
+        assert "y" in result.coords
+        assert "z" in result.coords
+        assert result["y"].values.tolist() == [10, 20, 30]
+        assert result["z"].values.tolist() == [100, 200, 300]
+
+    def test_set_coords_keeps_attributes(self):
+        transform = XArraySetCoords()
+        data = xr.Dataset(
+            {
+                "var1": ("x", [1, 2, 3]),
+                "y": ("x", [10, 20, 30]),
+            },
+            coords={"x": [0, 1, 2]},
+            attrs={"description": "Test dataset"},
+        )
+
+        result = transform.run(data, coords="y")
+
+        assert isinstance(result, xr.Dataset)
+        assert "y" in result.coords
+        assert result.attrs["description"] == "Test dataset"
 
 
 class TestXArrayMerge:
