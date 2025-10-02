@@ -272,3 +272,16 @@ class DataFrameToXArray(Transform):
             return source.set_index(index).to_xarray()
         else:
             return source.to_xarray()
+
+
+class DataFrameAsType(Transform):
+    name: str = 'dataframe.astype'
+    version: str = '1'
+
+    def run(self, source: pd.DataFrame, dtypes: Mapping[str, str]):
+        result = source.copy()
+        for column in dtypes:
+            if column not in source.columns:
+                raise ValueError(f'Column {column} not in DataFrame.')
+            result[column] = source[column].astype(dtypes[column])
+        return result

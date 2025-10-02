@@ -8,6 +8,7 @@ import pytest
 import xarray as xr
 
 from rdmlibpy.dataframes import (
+    DataFrameAsType,
     DataFrameAttributes,
     DataFrameFillNA,
     DataFrameJoin,
@@ -541,3 +542,120 @@ class TestDataFrameToXArray:
 
         with pytest.raises(KeyError):
             transform.run(df, index=['D'])
+
+
+class TestDataFrameAsType:
+    def test_create_instance(self):
+        transform = DataFrameAsType()
+
+        assert transform.name == 'dataframe.astype'
+        assert transform.version == '1'
+
+    def test_run_with_valid_dtypes(self):
+        transform = DataFrameAsType()
+        df = pd.DataFrame(
+            {
+                'A': [1, 2, 3],
+                'B': [4.0, 5.0, 6.0],
+                'C': ['7', '8', '9'],
+            }
+        )
+
+        dtypes = {'A': 'float64', 'B': 'int64', 'C': 'int64'}
+
+        result = transform.run(df, dtypes)
+
+        assert isinstance(result, pd.DataFrame)
+        assert result['A'].dtype == 'float64'
+        assert result['B'].dtype == 'int64'
+        assert result['C'].dtype == 'int64'
+        assert result.equals(
+            pd.DataFrame(
+                {
+                    'A': [1.0, 2.0, 3.0],
+                    'B': [4, 5, 6],
+                    'C': [7, 8, 9],
+                }
+            )
+        )
+
+    def test_run_with_invalid_column(self):
+        transform = DataFrameAsType()
+        df = pd.DataFrame(
+            {
+                'A': [1, 2, 3],
+                'B': [4.0, 5.0, 6.0],
+            }
+        )
+        dtypes = {'A': 'float64', 'C': 'int64'}
+
+        with pytest.raises(ValueError, match="Column C not in DataFrame."):
+            transform.run(df, dtypes)
+
+    def test_run_with_no_dtypes(self):
+        transform = DataFrameAsType()
+        df = pd.DataFrame(
+            {
+                'A': [1, 2, 3],
+                'B': [4.0, 5.0, 6.0],
+            }
+        )
+        dtypes = {}
+
+        result = transform.run(df, dtypes)
+
+        assert isinstance(result, pd.DataFrame)
+        assert result.equals(df)
+
+    def test_run_with_partial_dtypes(self):
+        transform = DataFrameAsType()
+        df = pd.DataFrame(
+            {
+                'A': [1, 2, 3],
+                'B': [4.0, 5.0, 6.0],
+                'C': ['7', '8', '9'],
+            }
+        )
+        dtypes = {'A': 'float64'}
+
+        result = transform.run(df, dtypes)
+
+        assert isinstance(result, pd.DataFrame)
+        assert result['A'].dtype == 'float64'
+        assert result['B'].dtype == 'float64'
+        assert result['C'].dtype == 'object'
+        assert result.equals(
+            pd.DataFrame(
+                {
+                    'A': [1.0, 2.0, 3.0],
+                    'B': [4.0, 5.0, 6.0],
+                    'C': ['7', '8', '9'],
+                }
+            )
+        )
+
+    def test_change_datetime_unit(self):
+        transform = DataFrameAsType()
+        df = pd.DataFrame(
+            {
+                'A': [1, 2, 3],
+                'B': [4.0, 5.0, 6.0],
+                'C': ['7', '8', '9'],
+                'timestamp': pd.to_datetime(
+                    [
+                        '2024-04-18T12:00:01',
+                        '2024-04-19T12:20:01',
+                        '2024-04-20T12:21:01',
+                    ],
+                    unit='ns',
+                ),
+            }
+        )
+        dtypes = {'timestamp': 'datetime64[ms]'}
+
+        result = transform.run(df, dtypes)
+
+        assert isinstance(result, pd.DataFrame)
+        assert result['timestamp'].dtype == 'datetime64[ms]'
+
+        assert all(df.timestamp == result.timestamp)
