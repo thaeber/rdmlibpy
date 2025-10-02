@@ -102,3 +102,28 @@ class XArraySelectVariable(Transform):
             return result
         else:
             raise ValueError(f"Variable '{variable}' not found in source.")
+
+
+class XArraySelectStrContains(Transform):
+    name: str = 'xarray.select.str.contains'
+    version: str = '1'
+
+    regex: bool = True
+    ignore_case: bool = False
+
+    def run(self, source: xr.DataArray | xr.Dataset, variable: str, pattern: str):
+        if isinstance(source, xr.DataArray):
+            col = source
+        else:
+            if variable not in source:
+                raise ValueError(f"Variable '{variable}' not found in source.")
+            col = source[variable]
+
+        selector = col.str.contains(
+            pattern,
+            regex=self.regex,
+            case=not self.ignore_case,
+        )
+
+        with KeepAttributesContext():
+            return source.where(selector, drop=True)

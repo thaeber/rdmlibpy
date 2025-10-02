@@ -3,6 +3,7 @@ from .xarray_io import XArrayFileCache
 from .xarray_selection import (
     XArraySelectIndexRange,
     XArraySelectRange,
+    XArraySelectStrContains,
     XArraySelectTimespan,
     XArraySelectVariable,
 )
@@ -28,6 +29,7 @@ register(XArrayFileCache())
 register(XArrayMerge())
 register(XArraySelectIndexRange())
 register(XArraySelectRange())
+register(XArraySelectStrContains())
 register(XArraySelectTimespan())
 register(XArraySelectVariable())
 register(XArraySetCoords())

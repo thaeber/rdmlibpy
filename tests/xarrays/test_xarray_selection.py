@@ -4,10 +4,13 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from rdmlibpy.xarrays import XArraySelectTimespan
-from rdmlibpy.xarrays import XArraySelectRange
-from rdmlibpy.xarrays import XArraySelectVariable
-from rdmlibpy.xarrays import XArraySelectIndexRange
+from rdmlibpy.xarrays import (
+    XArraySelectIndexRange,
+    XArraySelectRange,
+    XArraySelectStrContains,
+    XArraySelectTimespan,
+    XArraySelectVariable,
+)
 
 
 class TestSelectTimespan:
@@ -390,3 +393,114 @@ class TestSelectIndexRange:
         assert da.values == pytest.approx(np.arange(5, 10))
         assert da.x.values == pytest.approx(np.arange(5, 10))
         assert da.attrs.get('test_attr') == "test_value"
+
+
+class TestSelectStrContains:
+    def test_create_transform(self):
+        selector = XArraySelectStrContains()
+
+        assert selector.name == 'xarray.select.str.contains'
+        assert selector.version == '1'
+        assert selector.regex is True
+        assert selector.ignore_case is False
+
+    def test_variable_found(self):
+        # create test data
+        source = xr.Dataset(
+            dict(
+                var1=('x', ['apple', 'banana', 'cherry', 'date']),
+            )
+        )
+
+        transform = XArraySelectStrContains()
+        result = transform.run(source, variable='var1', pattern='a')
+
+        assert isinstance(result, xr.Dataset)
+        assert result['var1'].values.tolist() == ['apple', 'banana', 'date']
+
+    def test_variable_not_found(self):
+        # create test data
+        source = xr.Dataset(
+            dict(
+                var1=('x', ['apple', 'banana', 'cherry', 'date']),
+            )
+        )
+
+        transform = XArraySelectStrContains()
+
+        with pytest.raises(ValueError, match="Variable 'var2' not found in source."):
+            transform.run(source, 'var2', 'a')
+
+    def test_ignore_case(self):
+        # create test data
+        source = xr.Dataset(
+            dict(
+                var1=('x', ['Apple', 'Banana', 'Cherry', 'Date']),
+            )
+        )
+
+        transform = XArraySelectStrContains()
+        transform.ignore_case = True
+        result = transform.run(source, 'var1', 'a')
+
+        assert isinstance(result, xr.Dataset)
+        assert result['var1'].values.tolist() == ['Apple', 'Banana', 'Date']
+
+    def test_regex(self):
+        # create test data
+        source = xr.Dataset(
+            dict(
+                var1=('x', ['apple', 'banana', 'cherry', 'date']),
+            )
+        )
+
+        transform = XArraySelectStrContains(regex=True)
+        result = transform.run(source, 'var1', '^a.*e$')
+
+        assert isinstance(result, xr.Dataset)
+        assert result['var1'].values.tolist() == ['apple']
+
+    def test_no_matches(self):
+        # create test data
+        source = xr.Dataset(
+            dict(
+                var1=('x', ['apple', 'banana', 'cherry', 'date']),
+            )
+        )
+
+        transform = XArraySelectStrContains()
+        result = transform.run(source, 'var1', 'z')
+
+        assert isinstance(result, xr.Dataset)
+        assert all(v is None for v in result['var1'].values)
+
+    def test_dataarray_input(self):
+        # create test data
+        source = xr.DataArray(['apple', 'banana', 'cherry', 'date'], dims='x')
+
+        transform = XArraySelectStrContains()
+        result = transform.run(source, 'x', 'a')
+
+        assert isinstance(result, xr.DataArray)
+        assert result.values.tolist() == ['apple', 'banana', 'date']
+
+    def test_keep_attributes(self):
+        # create test data
+        source = xr.Dataset(
+            dict(
+                var1=(
+                    'x',
+                    ['apple', 'banana', 'cherry', 'date'],
+                    dict(var_attr="test_value"),
+                ),
+            ),
+            attrs=dict(global_attr="test_attr"),
+        )
+
+        transform = XArraySelectStrContains()
+        result = transform.run(source, variable='var1', pattern='a')
+
+        assert isinstance(result, xr.Dataset)
+        assert result['var1'].values.tolist() == ['apple', 'banana', 'date']
+        assert result.attrs == source.attrs
+        assert result['var1'].attrs == source['var1'].attrs
