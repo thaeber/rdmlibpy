@@ -504,3 +504,32 @@ class TestSelectStrContains:
         assert result['var1'].values.tolist() == ['apple', 'banana', 'date']
         assert result.attrs == source.attrs
         assert result['var1'].attrs == source['var1'].attrs
+
+    def test_keep_variable_types(self):
+        # create test data
+        source = xr.Dataset(
+            dict(
+                var1=(
+                    'x',
+                    ['apple', 'banana', 'cherry', 'date'],
+                    dict(var_attr="test_value"),
+                ),
+                var2=('x', np.array([1, 2, 3, 4], dtype=np.int32)),
+                var3=('x', np.array([True, False, True, False], dtype=bool)),
+            ),
+            attrs=dict(global_attr="test_attr"),
+        )
+
+        transform = XArraySelectStrContains()
+        result = transform.run(source, variable='var1', pattern='a')
+
+        assert isinstance(result, xr.Dataset)
+        assert result['var1'].values.tolist() == ['apple', 'banana', 'date']
+        assert result.attrs == source.attrs
+        assert result['var1'].attrs == source['var1'].attrs
+
+        assert result['var2'].dtype == source['var2'].dtype
+        assert result['var2'].values.tolist() == [1, 2, 4]
+
+        assert result['var3'].dtype == source['var3'].dtype
+        assert result['var3'].values.tolist() == [True, False, False]

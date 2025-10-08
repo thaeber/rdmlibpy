@@ -126,4 +126,14 @@ class XArraySelectStrContains(Transform):
         )
 
         with KeepAttributesContext():
-            return source.where(selector, drop=True)
+            result = source.where(selector, drop=True)
+
+            # coerce variable types if the differ between source and result
+            if isinstance(source, xr.Dataset):
+                for var in source.data_vars:
+                    if var in result.data_vars:
+                        result[var] = result[var].astype(source[var].dtype)
+            elif isinstance(source, xr.DataArray):
+                result = result.astype(source.dtype)
+
+            return result
