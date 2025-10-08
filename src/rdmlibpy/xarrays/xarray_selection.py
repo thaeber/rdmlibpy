@@ -36,6 +36,15 @@ class XArraySelectTimespan(Transform):
             return source.where(selector, drop=self.drop)
 
 
+class XArraySelectTimespanV1_1(XArraySelectTimespan):
+    version: str = '1.1'
+
+    def run(
+        self, source: xr.DataArray | xr.Dataset, variable: str, start=None, stop=None
+    ):
+        return super().run(source, variable, start, stop)
+
+
 class XArraySelectRange(Transform):
     name: str = 'xarray.select.range'
     version: str = '1'
@@ -67,6 +76,15 @@ class XArraySelectRange(Transform):
                 return source.map(select, keep_attrs=True)
             else:
                 raise TypeError("Source must be an xarray DataArray or Dataset.")
+
+
+class XArraySelectRangeV1_1(XArraySelectRange):
+    version: str = '1.1'
+
+    def run(
+        self, source: xr.DataArray | xr.Dataset, variable: str, start=None, stop=None
+    ):
+        return super().run(source, variable, start, stop)
 
 
 class XArraySelectIndexRange(Transform):
