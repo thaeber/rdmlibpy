@@ -23,10 +23,10 @@ class XArraySelectTimespan(Transform):
             start = parse(start)
             stop = parse(stop)
             selector = (start <= col) & (col <= stop)
-        elif start is None:
+        elif (start is None) and (stop is not None):
             stop = parse(stop)
             selector = col <= stop
-        elif stop is None:
+        elif (stop is None) and (start is not None):
             start = parse(start)
             selector = start <= col
         else:
