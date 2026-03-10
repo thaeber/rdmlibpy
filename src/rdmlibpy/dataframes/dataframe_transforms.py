@@ -263,6 +263,23 @@ class DataFrameTimeOffset(Transform):
         return source
 
 
+class DataFrameAdd(Transform):
+    name: str = 'dataframe.add'
+    version: str = '1'
+
+    def run(self, source: pd.DataFrame, column: str, value: Any):
+        if column not in source.columns:
+            raise ValueError(f'Column {column} not in DataFrame.')
+
+        if np.isscalar(value):
+            value = pint.application_registry.get().Quantity(value)  # type: ignore
+            if value.check('[]'):
+                value = value.magnitude
+
+        source[column] += value
+        return source
+
+
 class DataFrameToXArray(Transform):
     name: str = 'dataframe.to_xarray'
     version: str = '1'

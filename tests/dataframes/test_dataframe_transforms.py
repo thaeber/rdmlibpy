@@ -17,6 +17,7 @@ from rdmlibpy.dataframes import (
     DataFrameToXArray,
     DataFrameUnits,
 )
+from rdmlibpy.dataframes.dataframe_transforms import DataFrameAdd
 from rdmlibpy.loaders import ChannelTCLoggerLoader
 
 
@@ -659,3 +660,39 @@ class TestDataFrameAsType:
         assert result['timestamp'].dtype == 'datetime64[ms]'
 
         assert all(df.timestamp == result.timestamp)
+
+
+class TestDataFrameAdd:
+    def test_create_instance(self):
+        transform = DataFrameAdd()
+
+        assert transform.name == 'dataframe.add'
+        assert transform.version == '1'
+
+    def test_run_add_dimensionless_scalar(self):
+        transform = DataFrameAdd()
+        df = pd.DataFrame({'A': [1.0, 2.0, 3.0], 'B': [10.0, 20.0, 30.0]})
+
+        result = transform.run(df, column='A', value=2)
+
+        assert result is df
+        assert list(result['A']) == [3.0, 4.0, 5.0]
+        assert list(result['B']) == [10.0, 20.0, 30.0]
+
+    def test_run_add_quantity_to_pint_column(self):
+        transform = DataFrameAdd()
+        df = pd.DataFrame({'A': [1.0, 2.0, 3.0]})
+        df['A'] = pint_pandas.PintArray(df['A'], dtype='pint[m]')
+
+        result = transform.run(df, column='A', value='2 m')
+
+        assert result is df
+        assert result['A'].dtype == 'pint[m][float64]'
+        assert np.allclose(result['A'].pint.m, [3.0, 4.0, 5.0])
+
+    def test_run_raises_when_column_is_missing(self):
+        transform = DataFrameAdd()
+        df = pd.DataFrame({'A': [1.0, 2.0, 3.0]})
+
+        with pytest.raises(ValueError, match='Column B not in DataFrame.'):
+            transform.run(df, column='B', value=1)
