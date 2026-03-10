@@ -1,4 +1,20 @@
 <!-- insertion marker -->
+<a name="v0.2.27"></a>
+
+## [v0.2.27](https://github.com/thaeber/rdmlibpy/compare/v0.2.26...v0.2.27) (2026-03-10)
+
+### Bug Fixes
+
+- Return unfiltered data if both `start`and `stop` are None ([b60b145](https://github.com/thaeber/rdmlibpy/commit/b60b145cddab02ac320bca0b721658df086c2b4e))
+- Register new transformations ([08381ea](https://github.com/thaeber/rdmlibpy/commit/08381ea2869ff88d50ef8850db31ad43e5546d00))
+- Consistent use of parameter name `variable` to specify dataset variables ([1611569](https://github.com/thaeber/rdmlibpy/commit/1611569272d918f870b5d87852553e769899468f))
+- Retain variable types during selection of string patterns ([6c5a6c8](https://github.com/thaeber/rdmlibpy/commit/6c5a6c8f474f7eb322675fed64e4c67c234082a5))
+
+### Features
+
+- Implement DataFrameAdd transform with tests for addition functionality ([3427504](https://github.com/thaeber/rdmlibpy/commit/342750417fcad4cf5f1b8545c0679eec9cb75849))
+- Select/filter by column values using regular expressions ([5ff8198](https://github.com/thaeber/rdmlibpy/commit/5ff8198a59c793da287916f7ac2fa8ea244b0adc))
+- Change datatype of columns ([68a63ea](https://github.com/thaeber/rdmlibpy/commit/68a63eafaa5dce7904598e1af661ca606c5bcef7))
 
 <a name="v0.2.26"></a>
 
@@ -399,7 +415,7 @@
 - Renamed "target" parameter to "filename" ([33d31e3](https://github.com/thaeber/rdmlibpy/commit/33d31e3011b78ab4999d8e7d21d781e2cc0840c3))
 - Test for process id ([41203c0](https://github.com/thaeber/rdmlibpy/commit/41203c0169b2a6ce3ddf4a2c092b0566b29ed58c))
 - Fixed typo in "dataframe.cache" process id (#9) ([f6acb32](https://github.com/thaeber/rdmlibpy/commit/f6acb32ef7c1026d6a1f4c0f956605ec1fc72d64))
-- Renamed process to "dataframe.\[read|write\].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
+- Renamed process to "dataframe.[read|write].csv" for consistency (#8) ([a9a7132](https://github.com/thaeber/rdmlibpy/commit/a9a7132bd19118838a1f4acbaf21b217692fd33b))
 - DataFrameWriteCSV.run() did not return input value (#7) ([a297aa0](https://github.com/thaeber/rdmlibpy/commit/a297aa03a556fca1684b20fc2cda6c26855834cd))
 
 ### Features
@@ -452,7 +468,7 @@
 
 ### Style
 
-- Renamed "select.\[columns|timespan\]" to "dataframe.select.\[columns|timespan\]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
+- Renamed "select.[columns|timespan]" to "dataframe.select.[columns|timespan]" (#4) ([eb32028](https://github.com/thaeber/rdmlibpy/commit/eb320282b9696a6c1fbe45e44f76f00a84604603))
 
 <a name="v0.1.3"></a>
 
@@ -465,3 +481,4 @@
 <a name="v0.1.1"></a>
 
 ## [v0.1.1](https://github.com/thaeber/rdmlibpy/compare/b6e05adfa1b72a75295601854b5caaedc1876993...v0.1.1) (2024-04-01)
+
