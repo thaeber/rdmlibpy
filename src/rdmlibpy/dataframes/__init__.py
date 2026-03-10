@@ -2,6 +2,7 @@ from ..registry import register
 from .dataframes_io import DataFrameFileCache, DataFrameReadCSV, DataFrameWriteCSV
 from .dataframes_selection import SelectColumns, SelectTimespan
 from .dataframe_transforms import (
+    DataFrameAdd,
     DataFrameAsType,
     DataFrameAttributes,
     DataFrameFillNA,
@@ -14,6 +15,7 @@ from .dataframe_transforms import (
 )
 
 
+register(DataFrameAdd())
 register(DataFrameAsType())
 register(DataFrameAttributes())
 register(DataFrameFileCache())
