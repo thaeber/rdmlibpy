@@ -13,7 +13,7 @@ packages = [
 python = ">=3.10,<4.0.0"
 brukeropus = ">=1.1"
 dask = ">=2025.2"
-davislib = {git = "https://github.com/thaeber/davislib.git"}
+# davislib = {git = "https://github.com/thaeber/davislib.git"}
 h5netcdf = ">=1.4"
 netcdf4 = ">=1.7"
 numpy = ">=1.26"
